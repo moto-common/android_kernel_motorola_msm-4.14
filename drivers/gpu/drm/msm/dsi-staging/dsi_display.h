@@ -635,6 +635,12 @@ int dsi_display_cmd_transfer(struct drm_connector *connector,
 		u32 cmd_buf_len);
 
 /**
+ * dsi_display_force_esd_disable() - check if ESD UTAG is forced to disable ESD
+ * @display:            Handle to display.
+ */
+bool dsi_display_force_esd_disable(void *display);
+
+/**
  * dsi_display_soft_reset() - perform a soft reset on DSI controller
  * @display:         Handle to display
  *
