@@ -155,6 +155,7 @@ enum drm_mode_status {
 #define DRM_MODE_MATCH_FLAGS (1 << 2)
 #define DRM_MODE_MATCH_3D_FLAGS (1 << 3)
 #define DRM_MODE_MATCH_ASPECT_RATIO (1 << 4)
+#define DRM_MODE_DISPLAY_NAME_LEN 128
 
 /**
  * struct drm_display_mode - DRM kernel-internal display mode structure
@@ -290,6 +291,11 @@ struct drm_display_mode {
 	int vsync_end;
 	int vtotal;
 	int vscan;
+
+	u64 panel_id;
+	u64 panel_ver;
+	char panel_name[DRM_MODE_DISPLAY_NAME_LEN];
+
 	/**
 	 * @flags:
 	 *
