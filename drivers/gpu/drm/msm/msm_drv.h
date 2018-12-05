@@ -312,6 +312,7 @@ struct msm_roi_caps {
 
 enum msm_param_id {
 	PARAM_HBM_ID = 0,
+	PARAM_ACL_ID,
 	PARAM_ID_NUM
 };
 
