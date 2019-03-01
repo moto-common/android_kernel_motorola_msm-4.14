@@ -77,6 +77,12 @@
 
 };
 
+&soc {
+	wdog: qcom,wdt@f017000 {
+		qcom,bark-time = <22000>;
+	};
+};
+
 &pmi632_charger {
 	qcom,hvdcp-disable;
 };
