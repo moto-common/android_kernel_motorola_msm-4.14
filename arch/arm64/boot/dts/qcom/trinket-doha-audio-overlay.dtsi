@@ -494,8 +494,8 @@
 
 &sm6150_snd {
 	status = "ok";
-	compatible = "qcom,sm6150-tacna-asoc-snd";
-	qcom,model = "trinket-tacna-snd-card";
+	compatible = "qcom,sm6150-moto-asoc-snd";
+	qcom,model = "trinket-moto-snd-card";
 	qcom,pri-mi2s-gpios = <&cdc_pri_mi2s_gpios>;
 
 	asoc-platform = <&pcm0>, <&pcm1>, <&pcm2>, <&voip>, <&voice>,
@@ -541,4 +541,6 @@
 		"IN1LP_1", "MICBIAS1A",
 		"IN1RP_1",  "MICBIAS1B";
 	qcom,wsa-max-devs = <0>;
+	cirrus,prince-max-devs = <2>;
+	cirrus,tacna-dev = <1>;
 };
