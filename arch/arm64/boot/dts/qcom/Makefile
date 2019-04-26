@@ -11,10 +11,12 @@ DTC_FLAGS += -p 1024
 # Motorola Device Trees
 
 #CONFIG_DOHA_DTB
-dtbo-$(CONFIG_DTB_DTB) += \
-	trinket-doha-evt1-overlay.dtbo
+dtbo-$(CONFIG_DOHA_DTB) += \
+	trinket-doha-evt1-overlay.dtbo \
+	trinket-doha-evt2-overlay.dtbo
 
 trinket-doha-evt1-overlay.dtbo-base :=  trinket-doha-base.dtb
+trinket-doha-evt2-overlay.dtbo-base :=  trinket-doha-base.dtb
 
 else
 # SPDX-License-Identifier: GPL-2.0
