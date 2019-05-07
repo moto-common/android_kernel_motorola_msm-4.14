@@ -86,8 +86,11 @@ COMMON_DIR :=	include
 COMMON_INC :=	-I$(AUDIO_ROOT)/$(COMMON_DIR)
 
 ############ TACNA ############
-TACNA_INC := -I$(TOP)/motorola/kernel/modules/include \
-	-I$(TOP)/motorola/kernel/modules/
+TACNA_INC := -I$(TOP)/vendor/cirrus/audio/dlkm \
+	-I$(TOP)/vendor/cirrus/audio/dlkm/include
+
+############ MOT ############
+MOT_INC := -I$(TOP)/motorola/kernel/modules/include
 
 ############ ASoC Drivers ############
 
@@ -177,7 +180,8 @@ LINUX_INC +=	-Iinclude/linux
 
 INCS +=		$(COMMON_INC) \
 		$(UAPI_INC) \
-		$(TACNA_INC)
+		$(TACNA_INC) \
+		$(MOT_INC)
 
 EXTRA_CFLAGS += $(INCS)
 
