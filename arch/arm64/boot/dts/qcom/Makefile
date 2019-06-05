@@ -15,9 +15,14 @@ dtbo-$(CONFIG_DOHA_DTB) += \
 	trinket-doha-evt1-overlay.dtbo \
 	trinket-doha-evt2-overlay.dtbo
 
+dtbo-$(CONFIG_SOFIA_DTB) += \
+	trinket-sofia-evb1-overlay.dtbo \
+
+
 trinket-doha-evt1-overlay.dtbo-base :=  trinket-doha-base.dtb
 trinket-doha-evt2-overlay.dtbo-base :=  trinket-doha-base.dtb
 
+trinket-sofia-evb1-overlay.dtbo-base :=  trinket-sofia-base.dtb
 else
 # SPDX-License-Identifier: GPL-2.0
 ifeq ($(TARGET_BOARD_TYPE),auto)
