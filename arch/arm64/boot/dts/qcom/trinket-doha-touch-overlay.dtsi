@@ -12,6 +12,7 @@
 		spi-max-frequency=<20000000>;
 		focaltech,reset-gpio = <&tlmm 87 0x01>;
 		focaltech,irq-gpio = <&tlmm 88 0x02>;
+		focaltech,share_reset_gpio;
 		focaltech,max-touch-number = <10>;
 		focaltech,display-coords =  <0 0 1080 2280>;
 		pinctrl-names = "pmx_ts_active","pmx_ts_suspend","pmx_ts_release";
