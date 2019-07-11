@@ -45,6 +45,10 @@
 &sde_dsi {
 	qcom,dsi-display-list = <&dsi_ft8756_tm_vid_display>;
         /delete-property/ qcom,platform-te-gpio;
+
+	vddio_disp-supply = <&L9A>;
+	vsp_disp-supply = <&lcdb_ldo_vreg>;
+	vsn_disp-supply = <&lcdb_ncp_vreg>;
 };
 
 
@@ -77,7 +81,6 @@
 };
 
 &dsi_ft8756_tm_video {
-	qcom,panel-supply-entries = <&dsi_panel_pwr_supply>;
 	qcom,mdss-dsi-bl-min-level = <1>;
 	qcom,mdss-dsi-bl-max-level = <2047>;
 	qcom,platform-reset-gpio = <&tlmm 90 0>;
