@@ -44,6 +44,18 @@
 
 };
 
+&L9A {
+        regulator-always-on;
+};
+
+&lcdb_ldo_vreg {
+        regulator-always-on;
+};
+
+&lcdb_ncp_vreg {
+        regulator-always-on;
+};
+
 &sde_dsi {
 	qcom,dsi-display-list = <&dsi_ft8719_tm_vid_display
                   &dsi_hx83112a_ds_vid_display>;
