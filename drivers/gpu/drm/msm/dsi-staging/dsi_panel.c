@@ -2814,12 +2814,10 @@ static int dsi_panel_parse_bl_config(struct dsi_panel *panel)
 			pr_warn("[%s] failed to get bklt gpio, rc=%d\n",
 						panel->name, rc);
 			rc = -EPROBE_DEFER;
-			goto error;
 		} else {
 			pr_warn("[%s] failed to get bklt gpio, rc=%d\n",
 						panel->name, rc);
 			rc = 0;
-			goto error;
 		}
 	}
 
@@ -2831,12 +2829,10 @@ static int dsi_panel_parse_bl_config(struct dsi_panel *panel)
 			pr_warn("[%s] failed to get hbm gpio, rc=%d\n",
 						panel->name, rc);
 			rc = -EPROBE_DEFER;
-			goto error;
 		} else {
 			pr_warn("[%s]failed to get hbm gpio, rc=%d\n",
 						panel->name, rc);
 			rc = 0;
-			goto error;
 		}
 	}
 
