@@ -16,6 +16,12 @@ dtbo-$(CONFIG_DOHA_DTB) += \
 	trinket-doha-evt2-overlay.dtbo \
 	trinket-doha-dvt2-overlay.dtbo
 
+dtbo-$(CONFIG_RAV_DTB) += \
+	trinket-rav-evb1-overlay.dtbo \
+	trinket-rav-evb1-na-overlay.dtbo \
+	trinket-rav-evb2-overlay.dtbo \
+	trinket-rav-evb2-na-overlay.dtbo
+
 dtbo-$(CONFIG_SOFIA_DTB) += \
 	trinket-sofia-evb1-overlay.dtbo \
 	trinket-sofia-evt-overlay.dtbo \
@@ -42,6 +48,11 @@ trinket-sofiap-evt-overlay.dtbo-base :=  trinket-sofiap-base.dtb
 trinket-sofiap-dvt1a-overlay.dtbo-base :=  trinket-sofiap-base.dtb
 
 trinket-sofiar-evb1-overlay.dtbo-base :=  trinket-sofiar-base.dtb
+
+trinket-rav-evb1-overlay.dtbo-base :=  trinket-rav-base.dtb
+trinket-rav-evb1-na-overlay.dtbo-base :=  trinket-rav-base.dtb
+trinket-rav-evb2-overlay.dtbo-base :=  trinket-rav-base.dtb
+trinket-rav-evb2-na-overlay.dtbo-base :=  trinket-rav-base.dtb
 else
 # SPDX-License-Identifier: GPL-2.0
 ifeq ($(TARGET_BOARD_TYPE),auto)
