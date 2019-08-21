@@ -202,6 +202,7 @@ enum msm_mdp_conn_property {
 
 	/* MOT feature panel*/
 	CONNECTOR_PROP_HBM,
+	CONNECTOR_PROP_CABC,
 	/* total # of properties */
 	CONNECTOR_PROP_COUNT
 };
@@ -312,6 +313,7 @@ struct msm_roi_caps {
 
 enum msm_param_id {
 	PARAM_HBM_ID = 0,
+	PARAM_CABC_ID,
 	PARAM_ACL_ID,
 	PARAM_ID_NUM
 };
