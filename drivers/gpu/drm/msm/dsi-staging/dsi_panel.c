@@ -110,8 +110,14 @@ static struct panel_param_val_map hbm_map[HBM_STATE_NUM] = {
 	{HBM_ON_STATE, DSI_CMD_SET_HBM_ON, NULL},
 };
 
+static struct panel_param_val_map cabc_map[CABC_STATE_NUM] = {
+        {CABC_UI_STATE, DSI_CMD_SET_CABC_UI, NULL},
+        {CABC_MV_STATE, DSI_CMD_SET_CABC_MV, NULL},
+        {CABC_DIS_STATE, DSI_CMD_SET_CABC_DIS, NULL},
+};
 static struct panel_param dsi_panel_param[PARAM_ID_NUM] = {
 	{"HBM", hbm_map, HBM_STATE_NUM, HBM_OFF_STATE, HBM_OFF_STATE, false},
+	{"CABC", cabc_map, CABC_STATE_NUM, CABC_UI_STATE, CABC_UI_STATE, false},
 };
 
 int dsi_dsc_create_pps_buf_cmd(struct msm_display_dsc_info *dsc, char *buf,
@@ -924,9 +930,9 @@ static int dsi_panel_send_param_cmd (struct dsi_panel *panel,
 
         param_map = panel_param->val_map;
 
-	pr_debug("%s: param_name=%s; val_max =%d, default_value=%d, value=%d\n",
+	pr_info("%s: param_name=%s; val_max =%d, default_value=%d, value=%d\n",
 	        __func__, panel_param->param_name, panel_param->val_max,
-		panel_param->default_value, panel_param->value);
+		panel_param->default_value, param_info->value);
 
 	mutex_lock(&panel->panel_lock);
 	if (panel_param->value == param_info->value)
@@ -968,7 +974,20 @@ static int dsi_panel_set_hbm(struct dsi_panel *panel,
 {
 	int rc = 0;
 
-	pr_info("(%d)\n", param_info->value);
+	pr_info("%s: Set HBM to (%d)\n", __func__, param_info->value);
+	rc = dsi_panel_send_param_cmd(panel, param_info);
+	if (rc < 0)
+		pr_err("%s: failed to send param cmds. ret=%d\n", __func__, rc);
+
+        return rc;
+};
+
+static int dsi_panel_set_cabc(struct dsi_panel *panel,
+                        struct msm_param_info *param_info)
+{
+	int rc = 0;
+
+	pr_info("%s: Set CABC to (%d)\n", __func__, param_info->value);
 	rc = dsi_panel_send_param_cmd(panel, param_info);
 	if (rc < 0)
 		pr_err("%s: failed to send param cmds. ret=%d\n", __func__, rc);
@@ -982,18 +1001,23 @@ int dsi_panel_set_param(struct dsi_panel *panel,
 	int rc = 0;
 
 	if (!panel || !param_info) {
-                pr_err("invalid params\n");
+                pr_err("%s: invalid params\n", __func__);
                 return -EINVAL;
         }
 
 	pr_debug("%s+\n", __func__);
 
-	if (param_info->param_idx == PARAM_HBM_ID)
-		rc = dsi_panel_set_hbm(panel, param_info);
-	else {
-		pr_err("%s: Invalid set_param type=%d\n",
-			__func__, param_info->param_idx);
-		rc = -EINVAL;
+	switch (param_info->param_idx) {
+		case PARAM_HBM_ID :
+			dsi_panel_set_hbm(panel, param_info);
+			break;
+		case PARAM_CABC_ID :
+			dsi_panel_set_cabc(panel, param_info);
+			break;
+		default:
+			pr_err("%s: Invalid set_param type=%d\n",
+				__func__, param_info->param_idx);
+			return -EINVAL;
 	}
 
 	return rc;
@@ -2039,6 +2063,9 @@ const char *cmd_set_prop_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-hbm-on-command",
 	"qcom,mdss-dsi-hbm-off-command",
 	"qcom,mdss-dsi-hbm-dim-off-command",
+	"qcom,mdss-dsi-cabc-ui-command",
+	"qcom,mdss-dsi-cabc-mv-command",
+	"qcom,mdss-dsi-cabc-dis-command",
 };
 
 const char *cmd_set_state_map[DSI_CMD_SET_MAX] = {
@@ -2068,6 +2095,9 @@ const char *cmd_set_state_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-hbm-on-command-state",
 	"qcom,mdss-dsi-hbm-off-command-state",
 	"qcom,mdss-dsi-hbm-dim-off-command-state",
+	"qcom,mdss-dsi-cabc-ui-command-state",
+	"qcom,mdss-dsi-cabc-mv-command-state",
+	"qcom,mdss-dsi-cabc-dis-command-state",
 };
 
 static int dsi_panel_get_cmd_pkt_count(const char *data, u32 length, u32 *cnt)
@@ -3684,7 +3714,7 @@ static int dsi_panel_parse_param_prop(struct dsi_panel *panel,
 			rc = dsi_panel_parse_cmd_sets_sub(param_map->cmds, type,
 								utils);
 			if (rc) {
-				pr_err("panel param cmd %s parsing failed\n",
+				pr_err("%s: panel param cmd %s parsing failed\n", __func__,
 						param->param_name);
 				break;
 			}
@@ -3927,10 +3957,13 @@ struct dsi_panel *dsi_panel_get(struct device *parent,
 	if (rc)
 		pr_debug("failed to parse esd config, rc=%d\n", rc);
 
-	panel->param_cmds = &dsi_panel_param[0];
-	rc = dsi_panel_parse_param_prop(panel, of_node);
+	rc = dsi_panel_parse_mot_panel_config(panel, of_node);
 	if (rc)
-		pr_debug("failed to parse panel param prop, rc =%d\n", rc);
+		pr_debug("failed to parse mot_panel_config, rc = %d\n", rc);
+
+	//do not call dsi_panel_parse_param_prop here to parse hbm/cabc
+	//because drmProperty(dsiconnector) has not been created till now
+	panel->param_cmds = &dsi_panel_param[0];
 
 	rc = dsi_panel_parse_mot_panel_config(panel, of_node);
 	if (rc)
@@ -4261,6 +4294,10 @@ int dsi_panel_get_mode(struct dsi_panel *panel,
 			pr_err("failed to parse command sets, rc=%d\n", rc);
 			goto parse_fail;
 		}
+
+		//here pase moto panel features to drm prop
+		//only here can confirm the param->is_supported being set
+		rc = dsi_panel_parse_param_prop(panel, NULL);
 
 		rc = dsi_panel_parse_jitter_config(mode, utils);
 		if (rc)

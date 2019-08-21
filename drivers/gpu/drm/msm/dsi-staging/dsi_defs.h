@@ -284,7 +284,10 @@ enum dsi_dyn_clk_feature_type {
  * @DSI_CMD_SET_QSYNC_OFF                  Disable qsync mode
  * @DSI_CMD_SET_HBM_ON:                    Turning HBM on
  * @DSI_CMD_SET_HBM_OFF:                   Turning HBM off
- * DSI_CMD_SET_HBM_DIM_OFF:		   Turning HBM DIM off
+ * @DSI_CMD_SET_HBM_DIM_OFF:		   Turning HBM DIM off
+ * @DSI_CMD_SET_CABC_UI:			CABC UI mode
+ * @DSI_CMD_SET_CABC_MV:			CABC MV mode
+ * @DSI_CMD_SET_CABC_DIS:		CABC DIS mode
  * @DSI_CMD_SET_MAX
  */
 enum dsi_cmd_set_type {
@@ -315,7 +318,9 @@ enum dsi_cmd_set_type {
 	DSI_CMD_SET_HBM_OFF,
 
 	DSI_CMD_SET_HBM_DIM_OFF,
-
+	DSI_CMD_SET_CABC_UI,
+	DSI_CMD_SET_CABC_MV,
+	DSI_CMD_SET_CABC_DIS,
 	DSI_CMD_SET_MAX
 };
 
