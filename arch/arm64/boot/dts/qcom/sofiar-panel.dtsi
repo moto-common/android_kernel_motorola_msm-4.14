@@ -23,22 +23,12 @@
 		qcom,dsi-select-clocks = "mux_byte_clk0", "mux_pixel_clk0",
 			"src_byte_clk0", "src_pixel_clk0",
 			"shadow_byte_clk0", "shadow_pixel_clk0";
-		lab-supply = <&lcdb_ldo_vreg>;
-		ibb-supply = <&lcdb_ncp_vreg>;
 		qcom,dsi-panel = <&dsi_ft8756_tm_video>;
 	};
 
 };
 
 &L9A {
-        regulator-always-on;
-};
-
-&lcdb_ldo_vreg {
-        regulator-always-on;
-};
-
-&lcdb_ncp_vreg {
         regulator-always-on;
 };
 
@@ -54,7 +44,7 @@
 
 &dsi_ft8756_tm_video {
 	qcom,mdss-dsi-t-clk-post = <0x0e>;
-	qcom,mdss-dsi-t-clk-pre = <0x32>;
+	qcom,mdss-dsi-t-clk-pre = <0x33>;
 
 	qcom,esd-check-enabled;
 	qcom,mdss-dsi-panel-status-check-mode = "reg_read";
@@ -68,14 +58,19 @@
 	qcom,mdss-dsi-display-timings {
 		timing@0{
 			qcom,mdss-dsi-panel-phy-timings =
-				[25 20 08 0A 05 03 04 a0
-				25 20 08 0A 05 03 04 a0
-				25 20 08 0A 05 03 04 a0
-				25 20 08 0A 05 03 04 a0
-				24 1D 08 09 05 03 04 a0];
+				[25 1F 09 0A 06 03 04 a0
+				25 1F 09 0A 06 03 04 a0
+				25 1F 09 0A 06 03 04 a0
+				25 1F 09 0A 06 03 04 a0
+				25 1D 08 0A 06 03 04 a0];
 
 			qcom,display-topology = <1 0 1>;
 			qcom,default-topology-index = <0>;
+
+			qcom,mdss-dsi-hbm-on-command = [15 01 00 00 00 00 02 51 FF];
+			qcom,mdss-dsi-hbm-on-command-state =  "dsi_lp_mode";
+			qcom,mdss-dsi-hbm-off-command = [15 01 00 00 00 00 02 51 A3];
+			qcom,mdss-dsi-hbm-off-command-state =  "dsi_lp_mode";
 		};
 	};
 };
