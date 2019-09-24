@@ -585,6 +585,16 @@ static int dsi_panel_power_on(struct dsi_panel *panel)
 		goto exit;
 	}
 
+	if (panel->tp_state_check && panel->lcd_not_sleep) {
+		pr_info("(%s)+lcd not sleep \n", panel->name);
+	} else {
+		rc = dsi_pwr_enable_regulator(&panel->power_info, true);
+		if (rc) {
+			pr_err("[%s] failed to enable vregs, rc=%d\n", panel->name, rc);
+			goto exit;
+		}
+	}
+
 	rc = dsi_panel_set_pinctrl_state(panel, true);
 	if (rc) {
 		pr_err("[%s] failed to set pinctrl, rc=%d\n", panel->name, rc);
@@ -634,10 +644,14 @@ static int dsi_panel_power_off(struct dsi_panel *panel)
 	if (gpio_is_valid(panel->reset_config.disp_en_gpio))
 		gpio_set_value(panel->reset_config.disp_en_gpio, 0);
 
-	if (gpio_is_valid(panel->reset_config.reset_gpio)
+	if (panel->tp_state_check && panel->lcd_not_sleep) {
+		pr_info("(%s)+lcd not sleep \n", panel->name);
+	} else {
+		if (gpio_is_valid(panel->reset_config.reset_gpio)
 				&& (!panel->reset_config.reset_always_high ||
 				panel->reset_config.reset_force_pull_low))
-		gpio_set_value(panel->reset_config.reset_gpio, 0);
+			gpio_set_value(panel->reset_config.reset_gpio, 0);
+	}
 
 	if (gpio_is_valid(panel->reset_config.lcd_mode_sel_gpio))
 		gpio_set_value(panel->reset_config.lcd_mode_sel_gpio, 0);
@@ -651,9 +665,13 @@ static int dsi_panel_power_off(struct dsi_panel *panel)
 	if (panel->reset_config.reset_assert_time > 0)
 		mdelay(panel->reset_config.reset_assert_time);
 
-	rc = dsi_pwr_enable_regulator(&panel->power_info, false);
-	if (rc)
-		pr_err("[%s] failed to enable vregs, rc=%d\n", panel->name, rc);
+	if (panel->tp_state_check && panel->lcd_not_sleep) {
+		pr_info("(%s)+lcd not sleep \n", panel->name);
+	} else {
+		rc = dsi_pwr_enable_regulator(&panel->power_info, false);
+		if (rc)
+			pr_err("[%s] failed to enable vregs, rc=%d\n", panel->name, rc);
+	}
 
 	return rc;
 }
@@ -3841,6 +3859,9 @@ static int dsi_panel_parse_mot_panel_config(struct dsi_panel *panel,
 
 	panel->no_panel_on_read_support = of_property_read_bool(of_node,
 				"qcom,mdss-dsi-no-panel-on-read-support");
+
+	panel->tp_state_check= of_property_read_bool(of_node,
+				"qcom,tp_state_check_enable");
 	return rc;
 }
 
