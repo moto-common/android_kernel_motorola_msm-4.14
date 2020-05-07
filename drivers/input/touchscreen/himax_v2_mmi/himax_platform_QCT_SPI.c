@@ -939,6 +939,8 @@ int drm_notifier_callback(struct notifier_block *self,
 		}
 	}
 
+       /* Avoid HX83102D is called for early event and event, two times */
+#if !defined(__HIMAX_HX83102D_MOD__)
 	if (evdata->data && event == MSM_DRM_EVENT_BLANK && ts != NULL &&
 			ts->dev != NULL) {
 		blank = evdata->data;
@@ -948,6 +950,7 @@ int drm_notifier_callback(struct notifier_block *self,
 			break;
 		}
 	}
+#endif
 
 	return 0;
 }
