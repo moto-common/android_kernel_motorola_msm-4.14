@@ -86,11 +86,11 @@ COMMON_DIR :=	include
 COMMON_INC :=	-I$(AUDIO_ROOT)/$(COMMON_DIR)
 
 ############ TACNA ############
-TACNA_INC := -I$(TOP)/vendor/cirrus/audio/dlkm \
-	-I$(TOP)/vendor/cirrus/audio/dlkm/include
+TACNA_INC := -I$(ANDROID_BUILD_TOP)/vendor/cirrus/audio/dlkm \
+	-I$(ANDROID_BUILD_TOP)/vendor/cirrus/audio/dlkm/include
 
 ############ MOT ############
-MOT_INC := -I$(TOP)/motorola/kernel/modules/include
+MOT_INC := -I$(ANDROID_BUILD_TOP)/motorola/kernel/modules/include
 
 ifneq ($(filter m y,$(CONFIG_CIRRUS_PLAYBACK)),)
 	EXTRA_CFLAGS += -DCONFIG_CIRRUS_PLAYBACK
