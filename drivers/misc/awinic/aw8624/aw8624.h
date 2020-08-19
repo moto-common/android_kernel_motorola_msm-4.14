@@ -19,6 +19,7 @@
 #include <linux/mutex.h>
 #include <linux/cdev.h>
 #include <linux/leds.h>
+#include <linux/mmi_wake_lock.h>
 /*********************************************************
  *
  * marco
