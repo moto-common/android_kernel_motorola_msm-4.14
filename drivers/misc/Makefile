@@ -93,5 +93,6 @@ obj-$(CONFIG_OKL4_GUEST)        += okl4-panic.o
 obj-$(CONFIG_OKL4_LINK_SHBUF)    += okl4-link-shbuf.o
 obj-y				+= pen/
 obj-$(CONFIG_MMI_SIGPRINT)      += mmi_sigprint.o
+obj-$(CONFIG_SARSENSOR_SX933X) += sx933x/
 obj-$(CONFIG_MMI_SYS_TEMP) += mmi_sys_temp/
 obj-$(CONFIG_MOTO_UTAGS) += utag/
