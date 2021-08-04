@@ -1266,7 +1266,7 @@ config TOUCHSCREEN_HIMAX_CHIPSET
 
 	  If unsure, say N.
 
-source "drivers/input/touchscreen/hxchipset/Kconfig"
+source "drivers/input/touchscreen/himax_v2_mmi/Kconfig"
 
 config TOUCHSCREEN_SYNAPTICS_DSX
         bool "Synaptics DSX Touchscreen Driver"
