@@ -197,7 +197,7 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
 		-Werror\
 		-D__linux__
 
-ifneq (,$(filter sofiar% rav%, $(TARGET_PRODUCT)))
+ifeq ($(CONFIG_AMOGUS_DTB), y)
 CDEFINES += -DCONFIG_TAS25XX_ALGO
 endif
 

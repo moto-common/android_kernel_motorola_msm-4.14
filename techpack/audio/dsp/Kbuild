@@ -91,6 +91,9 @@ MOTO_KERN_INC := -I$(ANDROID_BUILD_TOP)/motorola/kernel/modules/include
 ifneq ($(filter m y,$(CONFIG_CIRRUS_PLAYBACK)),)
 	EXTRA_CFLAGS += -DCONFIG_CIRRUS_PLAYBACK
 endif
+ifeq ($(CONFIG_AMOGUS_DTB), y)
+	EXTRA_CFLAGS += -DCONFIG_TAS25XX_ALGO
+endif
 
 ############ QDSP6V2 ############
 
@@ -168,10 +171,6 @@ CDEFINES +=	-DANI_LITTLE_BYTE_ENDIAN \
 		-Wall\
 		-Werror\
 		-D__linux__
-
-ifneq (,$(filter sofiar% rav%, $(TARGET_PRODUCT)))
-CDEFINES += -DCONFIG_TAS25XX_ALGO
-endif
 
 KBUILD_CPPFLAGS += $(CDEFINES)
 
