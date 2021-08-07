@@ -699,8 +699,6 @@ int max_ant;
 int lim_th_max;
 int lim_th_min;
 bool tas2562brownout_enable;
-bool icn_enable_left;
-bool icn_enable_right;
 };
 
 #endif /* __TAS2562_ */
