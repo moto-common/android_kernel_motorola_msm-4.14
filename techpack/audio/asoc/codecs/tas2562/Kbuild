@@ -82,8 +82,8 @@ COMMON_INC :=	-I$(AUDIO_ROOT)/$(COMMON_DIR)
 
 ############ TAS2562 ############
 
-ifeq ($(CONFIG_SND_SOC_TAS2562), y)
-EXTRA_CFLAGS += -DCONFIG_TAS2562_REGMAP -DCONFIG_TAS2562_CODEC -DCONFIG_SND_SOC_TAS2562 -DTAS2558_CODEC -DCONFIG_TAS25XX_CALIB
+ifneq ($(filter m y,$(CONFIG_SND_SOC_TAS2562)),)
+	EXTRA_CFLAGS += -DCONFIG_TAS2562_REGMAP -DCONFIG_TAS2562_CODEC -DCONFIG_SND_SOC_TAS2562 -DTAS2558_CODEC -DCONFIG_TAS25XX_ALGO -DCONFIG_TAS25XX_ALGO_STEREO -DCONFIG_TAS25XX_CALIB
 endif
 
 LINUX_INC +=	-Iinclude/linux
@@ -127,5 +127,5 @@ KBUILD_EXTRA_SYMBOLS +=$(OUT)/obj/vendor/qcom/opensource/audio-kernel/asoc/codec
 KBUILD_EXTRA_SYMBOLS +=$(OUT)/obj/vendor/qcom/opensource/audio-kernel/soc/Module.symvers
 endif
 
-tas2562-objs = tas2562-codec.o tas2562-regmap.o
+tas2562-objs = tas2562-codec.o tas2562-regmap.o tas25xx-algo.o tas25xx-calib.o
 obj-$(CONFIG_SND_SOC_TAS2562) += tas2562.o
