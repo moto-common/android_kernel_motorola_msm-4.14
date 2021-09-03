@@ -146,4 +146,3 @@ ccflags-$(CONFIG_REGULATOR_DEBUG) += -DDEBUG
 
 # MOTO
 obj-$(CONFIG_REGULATOR_TPS61280) 	+= tps61280-regulator.o
-
