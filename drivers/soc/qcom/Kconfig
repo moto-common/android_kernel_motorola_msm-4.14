@@ -58,6 +58,18 @@ config RAV_DTB
 	  Only include Rav specific DTBs to limit the number that
 	  get built during kernel compilation.
 
+config AMOGUS_DTB
+	depends on ARCH_QCOM
+	depends on SOFIA_DTB
+	depends on SOFIAP_DTB
+	depends on SOFIAR_DTB
+	depends on RAV_DTB
+	default n
+	bool "SM6125 Moto Family DTBs"
+	help
+	  Only include Moto specific DTBs to limit the number that
+	  get built during kernel compilation.
+
 config QCOM_MEM_OFFLINE
 	bool "Dynamic Memory Region Offline driver"
 	help
