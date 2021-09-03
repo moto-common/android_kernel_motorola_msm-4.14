@@ -365,7 +365,7 @@
 &sm6150_snd {
 	status = "ok";
 	compatible = "qcom,sm6150-moto-asoc-snd";
-	qcom,model = "trinket-moto-snd-card";
+	qcom,model = "trinket-moto-sofia-card";
 	qcom,pri-mi2s-gpios = <&cdc_pri_mi2s_gpios>;
 
 	asoc-platform = <&pcm0>, <&pcm1>, <&pcm2>, <&voip>, <&voice>,
