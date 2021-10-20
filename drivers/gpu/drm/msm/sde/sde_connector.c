@@ -1269,7 +1269,7 @@ static int sde_connector_atomic_set_property(struct drm_connector *connector,
 			_sde_connector_destroy_fb(c_conn, c_state);
 	}
 
-	if ((idx == CONNECTOR_PROP_HBM) || (idx == CONNECTOR_PROP_CABC) ||(idx == CONNECTOR_PROP_ACL))
+	if ((idx == CONNECTOR_PROP_HBM) || (idx == CONNECTOR_PROP_CABC))
 		rc = 0xFF;
 end:
 	return rc;
@@ -2119,7 +2119,7 @@ static int sde_connector_install_panel_params(struct sde_connector *c_conn)
 	uint32_t prop_idx;
 	int i;
 	struct dsi_display *dsi_display;
-
+	u16 prop_max, prop_min, prop_init;
 
 	if (c_conn->connector_type != DRM_MODE_CONNECTOR_DSI)
 		return 0;

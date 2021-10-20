@@ -109,16 +109,12 @@ static struct panel_param_val_map hbm_map[HBM_STATE_NUM] = {
 	{HBM_OFF_STATE, DSI_CMD_SET_HBM_OFF, NULL},
 	{HBM_ON_STATE, DSI_CMD_SET_HBM_ON, NULL},
 };
-
-static struct panel_param dsi_panel_param[PARAM_ID_NUM] = {
-	{"HBM", hbm_map, HBM_STATE_NUM, HBM_OFF_STATE, HBM_OFF_STATE, false},
-	{"CABC", cabc_map, CABC_STATE_NUM, CABC_UI_STATE, CABC_UI_STATE, false},
-};
 static struct panel_param_val_map cabc_map[CABC_STATE_NUM] = {
         {CABC_UI_STATE, DSI_CMD_SET_CABC_UI, NULL},
         {CABC_MV_STATE, DSI_CMD_SET_CABC_MV, NULL},
         {CABC_DIS_STATE, DSI_CMD_SET_CABC_DIS, NULL},
 };
+
 static struct panel_param dsi_panel_param[PARAM_ID_NUM] = {
 	{"HBM", hbm_map, HBM_STATE_NUM, HBM_OFF_STATE, HBM_OFF_STATE, false},
 	{"CABC", cabc_map, CABC_STATE_NUM, CABC_UI_STATE, CABC_UI_STATE, false},
