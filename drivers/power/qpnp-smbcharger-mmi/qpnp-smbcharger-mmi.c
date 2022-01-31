@@ -3257,7 +3257,7 @@ static int __smb_mmi_ps_changed(struct device *dev, void *data)
 static void smb_mmi_power_supply_changed(struct power_supply *psy,
 					 char *envp_ext[])
 {
-	dev_err(&psy->dev, "SMBMMI: %s: %s\n", __func__, envp_ext[0]);
+	dev_dbg(&psy->dev, "SMBMMI: %s: %s\n", __func__, envp_ext[0]);
 
 	class_for_each_device(power_supply_class, NULL, psy,
 			      __smb_mmi_ps_changed);
