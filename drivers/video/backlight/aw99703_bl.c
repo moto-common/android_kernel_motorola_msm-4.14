@@ -628,7 +628,7 @@ aw99703_get_dt_data(struct device *dev, struct aw99703_data *drvdata)
 	rc = of_property_read_u32(np, "aw99703,pwm-trans-dim", &temp);
 	if (rc) {
 		drvdata->pwm_trans_dim = 0;
-		pr_err("Invalid pwm-tarns-dim value!\n");
+		pr_err("Invalid pwm-trans-dim value!\n");
 	} else {
 		drvdata->pwm_trans_dim = temp;
 		pr_info("%s pwm trnasition dimming--<%d>\n",
