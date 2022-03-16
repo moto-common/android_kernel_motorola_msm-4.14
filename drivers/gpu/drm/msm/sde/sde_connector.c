@@ -1241,14 +1241,6 @@ static int sde_connector_atomic_set_property(struct drm_connector *connector,
 		if (rc)
 			goto end;
 		break;
-	case CONNECTOR_PROP_ACL:
-		param_info.value = val;
-		param_info.param_idx = PARAM_ACL_ID;
-		param_info.param_conn_idx = CONNECTOR_PROP_ACL;
-		rc = _sde_connector_update_param(c_conn, &param_info);
-		if (rc)
-			goto end;
-		break;
 	case CONNECTOR_PROP_QSYNC_MODE:
 		msm_property_set_dirty(&c_conn->property_info,
 				&c_state->property_state, idx);
@@ -1277,7 +1269,7 @@ static int sde_connector_atomic_set_property(struct drm_connector *connector,
 			_sde_connector_destroy_fb(c_conn, c_state);
 	}
 
-	if ((idx == CONNECTOR_PROP_HBM) || (idx == CONNECTOR_PROP_CABC) ||(idx == CONNECTOR_PROP_ACL))
+	if ((idx == CONNECTOR_PROP_HBM) || (idx == CONNECTOR_PROP_CABC))
 		rc = 0xFF;
 end:
 	return rc;
@@ -2127,7 +2119,7 @@ static int sde_connector_install_panel_params(struct sde_connector *c_conn)
 	uint32_t prop_idx;
 	int i;
 	struct dsi_display *dsi_display;
-
+	u16 prop_max, prop_min, prop_init;
 
 	if (c_conn->connector_type != DRM_MODE_CONNECTOR_DSI)
 		return 0;
@@ -2143,8 +2135,6 @@ static int sde_connector_install_panel_params(struct sde_connector *c_conn)
 			prop_idx = CONNECTOR_PROP_HBM;
 		else if (!strncmp(param_cmds->param_name, "CABC", 4))
 			prop_idx = CONNECTOR_PROP_CABC;
-		else if (!strncmp(param_cmds->param_name, "ACL", 3))
-			prop_idx = CONNECTOR_PROP_ACL;
 		else {
 			SDE_ERROR("Invalid param_name =%s\n",
 						param_cmds->param_name);
