@@ -1,0 +1,3 @@
+source "techpack/data/perf/Kconfig"
+
+source "techpack/data/shs/Kconfig"
