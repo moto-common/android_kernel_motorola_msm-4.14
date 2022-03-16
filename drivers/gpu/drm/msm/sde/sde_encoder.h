@@ -23,6 +23,7 @@
 
 #include "msm_prop.h"
 #include "sde_hw_mdss.h"
+#include "sde_kms.h"
 
 #define SDE_ENCODER_FRAME_EVENT_DONE			BIT(0)
 #define SDE_ENCODER_FRAME_EVENT_ERROR			BIT(1)
@@ -59,12 +60,14 @@ struct sde_encoder_hw_resources {
  * @affected_displays:  bitmask, bit set means the ROI of the commit lies within
  *                      the bounds of the physical display at the bit index
  * @recovery_events_enabled: indicates status of client for recoovery events
+ * @frame_trigger_mode: indicates frame trigger mode
  */
 struct sde_encoder_kickoff_params {
 	u32 inline_rotate_prefill;
 	u32 is_primary;
 	unsigned long affected_displays;
 	bool recovery_events_enabled;
+	enum frame_trigger_mode_type frame_trigger_mode;
 };
 
 /**
@@ -136,6 +139,15 @@ struct sde_rsc_client *sde_encoder_get_rsc_client(struct drm_encoder *encoder);
 int sde_encoder_poll_line_counts(struct drm_encoder *encoder);
 
 /**
+ * sde_encoder_poll_rd_frame_counts - poll encoder read_frame_counts for number
+ *			of frame have sending to displays
+ * @encoder:    encoder pointer
+ * @Returns:    number for frame count on success
+ */
+int sde_encoder_poll_rd_frame_counts(struct drm_encoder *encoder);
+
+
+/**
  * sde_encoder_prepare_for_kickoff - schedule double buffer flip of the ctl
  *	path (i.e. ctl flush and start) at next appropriate time.
  *	Immediately: if no previous commit is outstanding.
@@ -155,6 +167,13 @@ int sde_encoder_prepare_for_kickoff(struct drm_encoder *encoder,
 void sde_encoder_trigger_kickoff_pending(struct drm_encoder *encoder);
 
 /**
+ * sde_encoder_set_pp_config_height - Change the PP_SYNC_CONFIG_HEIGHT for
+ *				motUtil's TE test
+ */
+int sde_encoder_set_pp_config_height(struct drm_encoder *drm_enc, bool enable,
+					u32 *prev_height);
+
+/**
  * sde_encoder_kickoff - trigger a double buffer flip of the ctl path
  *	(i.e. ctl flush and start) immediately.
  * @encoder:	encoder pointer
@@ -168,11 +187,11 @@ void sde_encoder_kickoff(struct drm_encoder *encoder, bool is_error);
  * @encoder:	encoder pointer
  * @event:      event to wait for
  * MSM_ENC_COMMIT_DONE -  Wait for hardware to have flushed the current pending
- *                        frames to hardware at a vblank or ctl_start
+ *                        frames to hardware at a vblank or wr_ptr_start
  *                        Encoders will map this differently depending on the
  *                        panel type.
  *	                  vid mode -> vsync_irq
- *                        cmd mode -> ctl_start
+ *                        cmd mode -> wr_ptr_start_irq
  * MSM_ENC_TX_COMPLETE -  Wait for the hardware to transfer all the pixels to
  *                        the panel. Encoders will map this differently
  *                        depending on the panel type.
@@ -341,12 +360,5 @@ void sde_encoder_control_idle_pc(struct drm_encoder *enc, bool enable);
  * @Return:     true if display in continuous splash
  */
 int sde_encoder_in_cont_splash(struct drm_encoder *enc);
-
-/**
- * sde_encoder_get_ctlstart_timeout_state - checks if ctl start timeout happened
- * @drm_enc:    Pointer to drm encoder structure
- * @Return:     non zero value if ctl start timeout occurred
- */
-int sde_encoder_get_ctlstart_timeout_state(struct drm_encoder *enc);
 
 #endif /* __SDE_ENCODER_H__ */

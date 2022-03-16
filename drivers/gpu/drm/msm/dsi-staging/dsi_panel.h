@@ -126,7 +126,6 @@ struct dsi_backlight_config {
 	u32 bl_level;
 	u32 bl_scale;
 	u32 bl_scale_ad;
-	bool bl_inverted_dbv;
 
 	int en_gpio;
 	/* PWM params */
@@ -212,6 +211,7 @@ enum cabc_state {
 enum hbm_state {
 	HBM_OFF_STATE = 0,
 	HBM_ON_STATE,
+	HBM_FOD_ON_STATE,
 	HBM_STATE_NUM
 };
 
@@ -224,7 +224,7 @@ struct panel_param_val_map {
 struct panel_param {
 	const char *param_name;
 	struct panel_param_val_map *val_map;
-	const u16 val_max;
+	u16 val_max;
 	const u16 default_value;
 	u16 value;
 	bool is_supported;
@@ -300,6 +300,9 @@ struct dsi_panel {
 	u32 disp_on_chk_val;
 	bool no_panel_on_read_support;
 
+	bool panel_hbm_dim_off;
+	bool panel_hbm_fod;
+
 	struct panel_param *param_cmds;
 	bool lcd_not_sleep;
 	bool tp_state_check;
@@ -373,6 +376,8 @@ int dsi_panel_set_lp2(struct dsi_panel *panel);
 
 int dsi_panel_set_nolp(struct dsi_panel *panel);
 
+int dsi_panel_set_tearing(struct dsi_panel *panel, bool enable);
+
 int dsi_panel_prepare(struct dsi_panel *panel);
 
 int dsi_panel_enable(struct dsi_panel *panel);
@@ -427,5 +432,12 @@ void dsi_panel_ext_bridge_put(struct dsi_panel *panel);
 
 int dsi_panel_set_param(struct dsi_panel *panel,
 			struct msm_param_info *param_info);
+
+int dsi_panel_get_elvss_data(struct dsi_panel *panel);
+int dsi_panel_get_elvss_data_1(struct dsi_panel *panel);
+int dsi_panel_set_elvss_dim_off(struct dsi_panel *panel, u8 val);
+int dsi_panel_parse_elvss_config(struct dsi_panel *panel, u8 elv_vl);
+void dsi_panel_calc_dsi_transfer_time(struct dsi_host_common_cfg *config,
+		struct dsi_display_mode *mode, u32 frame_threshold_us);
 
 #endif /* _DSI_PANEL_H_ */

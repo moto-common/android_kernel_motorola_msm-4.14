@@ -81,7 +81,6 @@ static const struct of_device_id msm_dsi_of_match[] = {
 	{}
 };
 
-#ifdef CONFIG_DEBUG_FS
 static ssize_t debugfs_state_info_read(struct file *file,
 				       char __user *buff,
 				       size_t count,
@@ -208,11 +207,6 @@ static int dsi_ctrl_debugfs_init(struct dsi_ctrl *dsi_ctrl,
 	struct dentry *dir, *state_file, *reg_dump;
 	char dbg_name[DSI_DEBUG_NAME_LEN];
 
-	if (!dsi_ctrl || !parent) {
-		pr_err("Invalid params\n");
-		return -EINVAL;
-	}
-
 	dir = debugfs_create_dir(dsi_ctrl->name, parent);
 	if (IS_ERR_OR_NULL(dir)) {
 		rc = PTR_ERR(dir);
@@ -264,17 +258,6 @@ static int dsi_ctrl_debugfs_deinit(struct dsi_ctrl *dsi_ctrl)
 	debugfs_remove(dsi_ctrl->debugfs_root);
 	return 0;
 }
-#else
-static int dsi_ctrl_debugfs_init(struct dsi_ctrl *dsi_ctrl,
-					struct dentry *parent)
-{
-	return 0;
-}
-static int dsi_ctrl_debugfs_deinit(struct dsi_ctrl *dsi_ctrl)
-{
-	return 0;
-}
-#endif /* CONFIG_DEBUG_FS */
 
 static inline struct msm_gem_address_space*
 dsi_ctrl_get_aspace(struct dsi_ctrl *dsi_ctrl,
@@ -846,21 +829,24 @@ int dsi_ctrl_pixel_format_to_bpp(enum dsi_pixel_format dst_format)
 }
 
 static int dsi_ctrl_update_link_freqs(struct dsi_ctrl *dsi_ctrl,
-	struct dsi_host_config *config, void *clk_handle)
+	struct dsi_host_config *config, void *clk_handle,
+	struct dsi_display_mode *mode)
 {
 	int rc = 0;
 	u32 num_of_lanes = 0;
-	u32 bpp;
-	u64 refresh_rate = TICKS_IN_MICRO_SECOND;
+	u32 bpp, frame_time_us;
 	u64 h_period, v_period, bit_rate, pclk_rate, bit_rate_per_lane,
 				byte_clk_rate, byte_intf_clk_rate;
 	struct dsi_host_common_cfg *host_cfg = &config->common_config;
 	struct dsi_split_link_config *split_link = &host_cfg->split_link;
 	struct dsi_mode_info *timing = &config->video_timing;
 	u32 bits_per_symbol = 16, num_of_symbols = 7; /* For Cphy */
+	u64 dsi_transfer_time_us = mode->priv_info->dsi_transfer_time_us;
+	u64 min_dsi_clk_hz = mode->priv_info->min_dsi_clk_hz;
 
-	/* Get bits per pxl in desitnation format */
+	/* Get bits per pxl in desitination format */
 	bpp = dsi_ctrl_pixel_format_to_bpp(host_cfg->dst_format);
+	frame_time_us = mult_frac(1000, 1000, (timing->refresh_rate));
 
 	if (host_cfg->data_lanes & DSI_DATA_LANE_0)
 		num_of_lanes++;
@@ -874,25 +860,20 @@ static int dsi_ctrl_update_link_freqs(struct dsi_ctrl *dsi_ctrl,
 	if (split_link->split_link_enabled)
 		num_of_lanes = split_link->lanes_per_sublink;
 
-	if (config->bit_clk_rate_hz_override == 0) {
-		if (config->panel_mode == DSI_OP_CMD_MODE) {
-			h_period = DSI_H_ACTIVE_DSC(timing);
-			h_period += timing->overlap_pixels;
-			v_period = timing->v_active;
+	config->common_config.num_data_lanes = num_of_lanes;
+	config->common_config.bpp = bpp;
 
-			do_div(refresh_rate, timing->mdp_transfer_time_us);
-		} else {
-			h_period = DSI_H_TOTAL_DSC(timing);
-			v_period = DSI_V_TOTAL(timing);
-			refresh_rate = timing->refresh_rate;
-		}
-		bit_rate = h_period * v_period * refresh_rate * bpp;
-	} else {
+	if (config->bit_clk_rate_hz_override != 0) {
 		bit_rate = config->bit_clk_rate_hz_override * num_of_lanes;
-		if (host_cfg->phy_type == DSI_PHY_TYPE_CPHY) {
-			bit_rate *= bits_per_symbol;
-			do_div(bit_rate, num_of_symbols);
-		}
+	} else if (config->panel_mode == DSI_OP_CMD_MODE) {
+		/* Calculate the bit rate needed to match dsi transfer time */
+		bit_rate = min_dsi_clk_hz * frame_time_us;
+		do_div(bit_rate, dsi_transfer_time_us);
+		bit_rate = bit_rate * num_of_lanes;
+	} else {
+		h_period = DSI_H_TOTAL_DSC(timing);
+		v_period = DSI_V_TOTAL(timing);
+		bit_rate = h_period * v_period * timing->refresh_rate * bpp;
 	}
 
 	pclk_rate = bit_rate;
@@ -1801,7 +1782,7 @@ static int dsi_enable_io_clamp(struct dsi_ctrl *dsi_ctrl,
 static int dsi_ctrl_dts_parse(struct dsi_ctrl *dsi_ctrl,
 				  struct device_node *of_node)
 {
-	u32 index = 0;
+	u32 index = 0, frame_threshold_time_us = 0;
 	int rc = 0;
 
 	if (!dsi_ctrl || !of_node) {
@@ -1829,6 +1810,15 @@ static int dsi_ctrl_dts_parse(struct dsi_ctrl *dsi_ctrl,
 
 	dsi_ctrl->split_link_supported = of_property_read_bool(of_node,
 					"qcom,split-link-supported");
+
+	rc = of_property_read_u32(of_node, "frame-threshold-time-us",
+			&frame_threshold_time_us);
+	if (rc) {
+		pr_debug("frame-threshold-time not specified, defaulting\n");
+		frame_threshold_time_us = 2666;
+	}
+
+	dsi_ctrl->frame_threshold_time_us = frame_threshold_time_us;
 
 	return 0;
 }
@@ -1974,6 +1964,7 @@ static struct platform_driver dsi_ctrl_driver = {
 	},
 };
 
+#if defined(CONFIG_DEBUG_FS)
 
 void dsi_ctrl_debug_dump(u32 *entries, u32 size)
 {
@@ -1995,6 +1986,7 @@ void dsi_ctrl_debug_dump(u32 *entries, u32 size)
 	mutex_unlock(&dsi_ctrl_list_lock);
 }
 
+#endif
 /**
  * dsi_ctrl_get() - get a dsi_ctrl handle from an of_node
  * @of_node:    of_node of the DSI controller.
@@ -2074,7 +2066,7 @@ int dsi_ctrl_drv_init(struct dsi_ctrl *dsi_ctrl, struct dentry *parent)
 {
 	int rc = 0;
 
-	if (!dsi_ctrl) {
+	if (!dsi_ctrl || !parent) {
 		pr_err("Invalid params\n");
 		return -EINVAL;
 	}
@@ -2683,7 +2675,8 @@ void dsi_ctrl_disable_status_interrupt(struct dsi_ctrl *dsi_ctrl,
 {
 	unsigned long flags;
 
-	if (!dsi_ctrl || intr_idx >= DSI_STATUS_INTERRUPT_COUNT)
+	if (!dsi_ctrl || dsi_ctrl->irq_info.irq_num == -1 ||
+			intr_idx >= DSI_STATUS_INTERRUPT_COUNT)
 		return;
 
 	spin_lock_irqsave(&dsi_ctrl->irq_info.irq_lock, flags);
@@ -2695,8 +2688,7 @@ void dsi_ctrl_disable_status_interrupt(struct dsi_ctrl *dsi_ctrl,
 					dsi_ctrl->irq_info.irq_stat_mask);
 
 			/* don't need irq if no lines are enabled */
-			if (dsi_ctrl->irq_info.irq_stat_mask == 0 &&
-				dsi_ctrl->irq_info.irq_num != -1)
+			if (dsi_ctrl->irq_info.irq_stat_mask == 0)
 				disable_irq_nosync(dsi_ctrl->irq_info.irq_num);
 		}
 
@@ -2986,6 +2978,7 @@ error:
  * dsi_ctrl_update_host_config() - update dsi host configuration
  * @dsi_ctrl:          DSI controller handle.
  * @config:            DSI host configuration.
+ * @mode:              DSI host mode selected.
  * @flags:             dsi_mode_flags modifying the behavior
  *
  * Updates driver with new Host configuration to use for host initialization.
@@ -2996,6 +2989,7 @@ error:
  */
 int dsi_ctrl_update_host_config(struct dsi_ctrl *ctrl,
 				struct dsi_host_config *config,
+				struct dsi_display_mode *mode,
 				int flags, void *clk_handle)
 {
 	int rc = 0;
@@ -3019,7 +3013,8 @@ int dsi_ctrl_update_host_config(struct dsi_ctrl *ctrl,
 		 * for dynamic clk switch case link frequence would
 		 * be updated dsi_display_dynamic_clk_switch().
 		 */
-		rc = dsi_ctrl_update_link_freqs(ctrl, config, clk_handle);
+		rc = dsi_ctrl_update_link_freqs(ctrl, config, clk_handle,
+				mode);
 		if (rc) {
 			pr_err("[%s] failed to update link frequencies, rc=%d\n",
 			       ctrl->name, rc);

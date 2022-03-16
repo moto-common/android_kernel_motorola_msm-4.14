@@ -199,10 +199,12 @@ enum msm_mdp_conn_property {
 	CONNECTOR_PROP_LP,
 	CONNECTOR_PROP_FB_TRANSLATION_MODE,
 	CONNECTOR_PROP_QSYNC_MODE,
+	CONNECTOR_PROP_CMD_FRAME_TRIGGER_MODE,
 
 	/* MOT feature panel*/
 	CONNECTOR_PROP_HBM,
 	CONNECTOR_PROP_CABC,
+	CONNECTOR_PROP_ACL,
 	/* total # of properties */
 	CONNECTOR_PROP_COUNT
 };
@@ -607,6 +609,15 @@ struct msm_drm_thread {
 	struct kthread_worker worker;
 };
 
+struct msm_idle {
+	u32 timeout_ms;
+	u32 encoder_mask;
+	u32 active_mask;
+
+	spinlock_t lock;
+	struct delayed_work work;
+};
+
 struct msm_drm_private {
 
 	struct drm_device *dev;
@@ -715,6 +726,8 @@ struct msm_drm_private {
 
 	/* update the flag when msm driver receives shutdown notification */
 	bool shutdown_in_progress;
+
+	struct msm_idle idle;
 };
 
 /* get struct msm_kms * from drm_device * */
@@ -965,6 +978,7 @@ static inline int msm_dsi_modeset_init(struct msm_dsi *msm_dsi,
 void __init msm_mdp_register(void);
 void __exit msm_mdp_unregister(void);
 
+void msm_idle_set_state(struct drm_encoder *encoder, bool active);
 #ifdef CONFIG_DEBUG_FS
 void msm_gem_describe(struct drm_gem_object *obj, struct seq_file *m);
 void msm_gem_describe_objects(struct list_head *list, struct seq_file *m);

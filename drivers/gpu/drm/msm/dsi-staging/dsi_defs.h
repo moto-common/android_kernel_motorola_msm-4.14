@@ -282,10 +282,12 @@ enum dsi_dyn_clk_feature_type {
  * @DSI_CMD_SET_POST_TIMING_SWITCH:        Post timing switch
  * @DSI_CMD_SET_QSYNC_ON                   Enable qsync mode
  * @DSI_CMD_SET_QSYNC_OFF                  Disable qsync mode
+ * @DSI_CMD_SET_HBM_FOD_ON:                Turning HBM_FOD on
  * @DSI_CMD_SET_HBM_ON:                    Turning HBM on
  * @DSI_CMD_SET_HBM_OFF:                   Turning HBM off
  * @DSI_CMD_SET_ACL_ON:                    Turning ACL on
  * @DSI_CMD_SET_ACL_OFF:                   Turning ACL off
+ * @DSI_CMD_SET_HBM_DIM_OFF:		   Turning HBM DIM off
  * @DSI_CMD_SET_CABC_UI:			CABC UI mode
  * @DSI_CMD_SET_CABC_MV:			CABC MV mode
  * @DSI_CMD_SET_CABC_DIS:		CABC DIS mode
@@ -315,10 +317,12 @@ enum dsi_cmd_set_type {
 	DSI_CMD_SET_POST_TIMING_SWITCH,
 	DSI_CMD_SET_QSYNC_ON,
 	DSI_CMD_SET_QSYNC_OFF,
+	DSI_CMD_SET_HBM_FOD_ON,
 	DSI_CMD_SET_HBM_ON,
 	DSI_CMD_SET_HBM_OFF,
 	DSI_CMD_SET_ACL_ON,
 	DSI_CMD_SET_ACL_OFF,
+	DSI_CMD_SET_HBM_DIM_OFF,
 	DSI_CMD_SET_CABC_UI,
 	DSI_CMD_SET_CABC_MV,
 	DSI_CMD_SET_CABC_DIS,
@@ -424,8 +428,10 @@ struct dsi_panel_cmd_set {
  * @v_sync_polarity:  Polarity of VSYNC (false is active low).
  * @refresh_rate:     Refresh rate in Hz.
  * @clk_rate_hz:      DSI bit clock rate per lane in Hz.
+ * @min_dsi_clk_hz:   Min DSI bit clock to transfer in vsync time.
  * @mdp_transfer_time_us:   Specifies the mdp transfer time for command mode
  *                    panels in microseconds.
+ * @dsi_transfer_time_us:   Specifies dsi transfer time for command mode.
  * @overlap_pixels:   overlap pixels for certain panels.
  * @dsc_enabled:      DSC compression enabled.
  * @dsc:              DSC compression configuration.
@@ -447,7 +453,9 @@ struct dsi_mode_info {
 
 	u32 refresh_rate;
 	u64 clk_rate_hz;
+	u64 min_dsi_clk_hz;
 	u32 mdp_transfer_time_us;
+	u32 dsi_transfer_time_us;
 	u32 overlap_pixels;
 	bool dsc_enabled;
 	struct msm_display_dsc_info *dsc;
@@ -470,6 +478,8 @@ struct dsi_split_link_config {
  * struct dsi_host_common_cfg - Host configuration common to video and cmd mode
  * @dst_format:          Destination pixel format.
  * @data_lanes:          Physical data lanes to be enabled.
+ * @num_data_lanes:      Number of physical data lanes.
+ * @bpp:                 Number of bits per pixel.
  * @en_crc_check:        Enable CRC checks.
  * @en_ecc_check:        Enable ECC checks.
  * @te_mode:             Source for TE signalling.
@@ -486,8 +496,6 @@ struct dsi_split_link_config {
  * @t_clk_pre:           Number of byte clock cycles that the high spped clock
  *                       shall be driven prior to data lane transitions from LP
  *                       to HS mode.
- * @t_clk_pre_extend:    Increment t_clk_pre counter by 2 byteclk if set to
- *                       true, otherwise increment by 1 byteclk.
  * @ignore_rx_eot:       Ignore Rx EOT packets if set to true.
  * @append_tx_eot:       Append EOT packets for forward transmissions if set to
  *                       true.
@@ -501,6 +509,8 @@ struct dsi_split_link_config {
 struct dsi_host_common_cfg {
 	enum dsi_pixel_format dst_format;
 	enum dsi_data_lanes data_lanes;
+	u8 num_data_lanes;
+	u8 bpp;
 	bool en_crc_check;
 	bool en_ecc_check;
 	enum dsi_te_mode te_mode;
@@ -513,7 +523,6 @@ struct dsi_host_common_cfg {
 	bool bit_swap_blue;
 	u32 t_clk_post;
 	u32 t_clk_pre;
-	bool t_clk_pre_extend;
 	bool ignore_rx_eot;
 	bool append_tx_eot;
 	u32 ext_bridge_num;
@@ -576,7 +585,7 @@ struct dsi_cmd_engine_cfg {
  * @common_config:         Host configuration common to both Video and Cmd mode.
  * @video_engine:          Video engine configuration if panel is in video mode.
  * @cmd_engine:            Cmd engine configuration if panel is in cmd mode.
- * @esc_clk_rate_hz:      Esc clock frequency in Hz.
+ * @esc_clk_rate_khz:      Esc clock frequency in Hz.
  * @bit_clk_rate_hz:       Bit clock frequency in Hz.
  * @bit_clk_rate_hz_override: DSI bit clk rate override from dt/sysfs.
  * @video_timing:          Video timing information of a frame.
@@ -606,7 +615,9 @@ struct dsi_host_config {
  * @panel_prefill_lines:  Panel prefill lines for RSC
  * @mdp_transfer_time_us:   Specifies the mdp transfer time for command mode
  *                          panels in microseconds.
+ * @dsi_transfer_time_us: Specifies the dsi transfer time for cmd panels.
  * @clk_rate_hz:          DSI bit clock per lane in hz.
+ * @min_dsi_clk_hz:       Min dsi clk per lane to transfer frame in vsync time.
  * @overlap_pixels:       overlap pixels for certain panels.
  * @topology:             Topology selected for the panel
  * @dsc:                  DSC compression info
@@ -623,7 +634,9 @@ struct dsi_display_mode_priv_info {
 	u32 panel_jitter_denom;
 	u32 panel_prefill_lines;
 	u32 mdp_transfer_time_us;
+	u32 dsi_transfer_time_us;
 	u64 clk_rate_hz;
+	u64 min_dsi_clk_hz;
 	u32 overlap_pixels;
 
 	struct msm_display_topology topology;

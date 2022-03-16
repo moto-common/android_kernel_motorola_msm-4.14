@@ -28,6 +28,8 @@
 #include "dsi_ctrl.h"
 #include "dsi_phy.h"
 #include "dsi_panel.h"
+#include "sde_connector.h"
+#include "sde_motUtil.h"
 #ifdef CONFIG_DRM_MSM_DSI_MOT_EXT
 #include "dsi_display_mot_ext.h"
 #endif
@@ -625,6 +627,7 @@ void dsi_display_enable_event(struct drm_connector *connector,
 int dsi_display_set_backlight(struct drm_connector *connector,
 		void *display, u32 bl_lvl);
 
+int dsi_display_set_tearing(void *display, bool enable);
 /**
  * dsi_display_check_status() - check if panel is dead or alive
  * @connector:          Pointer to drm connector structure
@@ -646,10 +649,23 @@ int dsi_display_cmd_transfer(struct drm_connector *connector,
 		u32 cmd_buf_len);
 
 /**
+ * dsi_display_motUtil_transfer() - Convert motUtil data and transfer command
+ *						to the panel
+ * @display:            Handle to display.
+ * @cmd_buf:            Command buffer
+ * @cmd_buf_len:        Command buffer length in bytes
+ * @motUtil_data:	motUtil data information
+ */
+int dsi_display_motUtil_transfer(void *display, const char *cmd_buf,
+		u32 cmd_buf_len, struct motUtil *motUtil_data);
+
+
+/**
  * dsi_display_force_esd_disable() - check if ESD UTAG is forced to disable ESD
  * @display:            Handle to display.
  */
 bool dsi_display_force_esd_disable(void *display);
+
 
 /**
  * dsi_display_soft_reset() - perform a soft reset on DSI controller
