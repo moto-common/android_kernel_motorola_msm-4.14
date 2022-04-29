@@ -66,7 +66,7 @@ static void scm_disable_sdi(void);
  * So the SDI cannot be re-enabled when it already by-passed.
  */
 static int download_mode = 1;
-static bool force_warm_reboot;
+static bool force_warm_reboot = 1;
 
 #ifdef CONFIG_QCOM_DLOAD_MODE
 #define EDL_MODE_PROP "qcom,msm-imem-emergency_download_mode"
@@ -318,10 +318,7 @@ static void msm_restart_prepare(const char *cmd)
 		pr_info("Forcing a warm reset of the system\n");
 
 	/* Hard reset the PMIC unless memory contents must be maintained. */
-	if (force_warm_reboot || need_warm_reset || in_panic)
-		qpnp_pon_system_pwr_off(PON_POWER_OFF_WARM_RESET);
-	else
-		qpnp_pon_system_pwr_off(PON_POWER_OFF_HARD_RESET);
+	qpnp_pon_system_pwr_off(PON_POWER_OFF_WARM_RESET);
 
 	if (cmd != NULL) {
 		if (!strncmp(cmd, "bootloader", 10)) {
@@ -331,11 +328,6 @@ static void msm_restart_prepare(const char *cmd)
 			/* set reboot_bl flag in PMIC for cold reset */
 			qpnp_pon_store_extra_reset_info(RESET_EXTRA_REBOOT_BL_REASON,
 				RESET_EXTRA_REBOOT_BL_REASON);
-			/*
-			 * force cold reboot here to avoid unexpected
-			 * warm boot from bootloader.
-			 */
-			qpnp_pon_system_pwr_off(PON_POWER_OFF_HARD_RESET);
 		} else if (!strncmp(cmd, "recovery", 8)) {
 			qpnp_pon_set_restart_reason(
 				PON_RESTART_REASON_RECOVERY);
