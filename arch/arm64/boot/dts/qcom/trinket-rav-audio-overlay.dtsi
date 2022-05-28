@@ -154,14 +154,24 @@
 &qupv3_se1_i2c {
 	status = "ok";
 
-	tas2562:tas2562@4c {
-		compatible = "ti,tas2562";
+	tas256x:tas256x@4c {
+		compatible = "ti, tas2562";
 		reg = <0x4c>;
 		ti,channels = <1>;
 		ti,left-channel = <0x4c>;
 		ti,reset-gpio = <&tlmm 117 0>;
 		ti,irq-gpio = <&tlmm 101 0>;
 		ti,asi-format = <0>;   /* 0, i2S; 1, DSP; */
+		ti,iv-width = <16>;
+		ti,vbat-mon = <1>;
+		/* frame start count on clk 0
+		RX delay 1 clk fetch on clk raising
+		TX delay 1 clk fetch on clk falling */
+		ti,frame-start = <0>;
+		ti,rx-offset = <1>;
+		ti,rx-edge = <0>;
+		ti,tx-offset = <1>;
+		ti,tx-edge = <1>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&amp_irq>;
 		status = "ok";

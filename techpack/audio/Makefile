@@ -70,6 +70,10 @@ ifeq ($(CONFIG_ARCH_TRINKET), y)
 LINUXINCLUDE    += \
                 -include $(srctree)/techpack/audio/config/trinketautoconf.h
 endif
+ifeq ($(CONFIG_AMOGUS_DTB), y)
+LINUXINCLUDE    += \
+                -include $(srctree)/techpack/audio/config/amogusautoconf.h
+endif
 
 obj-y += soc/
 obj-y += dsp/
