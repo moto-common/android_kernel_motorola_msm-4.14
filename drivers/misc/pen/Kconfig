@@ -1,0 +1,4 @@
+config BU520XX_PEN
+	tristate "BU520XX Pen HALL Sensor"
+	help
+	  Enable BU520XX Pen HALL Sensor

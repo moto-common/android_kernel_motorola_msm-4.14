@@ -49,3 +49,11 @@ config TOUCHSCREEN_FTS_0FLASH_MMI_ENABLE_PALM
 	help
 	  Say Y here to enable support for Palm functionality on Focaltech touch panel.
 	  If unsure, say N.
+
+config INPUT_FOCALTECH_0FLASH_MMI_PEN_NOTIFIER
+	bool "Moto Focaltech Pen"
+	depends on TOUCHSCREEN_FTS_0FLASH_MMI
+        default n
+        help
+          Say Y here to enable support for Pen functionality on Focaltech touch panel.
+          If unsure, say N.

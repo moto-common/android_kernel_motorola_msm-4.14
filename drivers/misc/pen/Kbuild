@@ -1,0 +1,7 @@
+# add -Wall to try to catch everything we can.
+EXTRA_CFLAGS += -Wall
+EXTRA_CFLAGS += -I$(ANDROID_BUILD_TOP)/motorola/kernel/modules/include
+
+bu520xx-y := bu520xx_pen.o
+
+obj-$(CONFIG_BU520XX_PEN) += bu520xx_pen.o
