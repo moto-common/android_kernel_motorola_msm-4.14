@@ -52,7 +52,7 @@
 #define AW8624_MAX_FIRMWARE_LOAD_CNT 20
 #define OSC_CALIBRATION_T_LENGTH 5100000
 #define PM_QOS_VALUE_VB 400
-struct pm_qos_request pm_qos_req_vb;
+static struct pm_qos_request pm_qos_req_vb;
 
 /******************************************************
  *
