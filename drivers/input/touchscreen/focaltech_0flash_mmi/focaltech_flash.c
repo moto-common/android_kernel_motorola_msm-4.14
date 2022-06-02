@@ -285,8 +285,8 @@ int fts_fw_resume(bool need_reset)
         return -EINVAL;
     }
 
-    snprintf(fwname, FILE_NAME_LENGTH, "%s%s.bin", \
-             FTS_FW_NAME_PREX_WITH_REQUEST, upg->module_info->vendor_name);
+    snprintf(fwname, FILE_NAME_LENGTH, "%s.bin", \
+             FTS_FW_NAME_PREX_WITH_REQUEST);
 
     /* 1. request firmware */
     ret = request_firmware(&fw, fwname, upg->ts_data->dev);
