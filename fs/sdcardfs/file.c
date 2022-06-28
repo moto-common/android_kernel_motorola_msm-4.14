@@ -238,6 +238,10 @@ static int sdcardfs_open(struct inode *inode, struct file *file)
 	const struct cred *saved_cred = NULL;
 	uid_t writer_uid = current_fsuid().val;
 	struct sdcardfs_inode_data *pd = SDCARDFS_I(d_inode(parent))->data;
+#ifdef CONFIG_FUSE_FS_SHORTCIRCUIT
+	struct fuse_package *fp = current->fpack;
+	char *iname;
+#endif /* CONFIG_FUSE_FS_SHORTCIRCUIT */
 
 	/* don't open unhashed/deleted files */
 	if (d_unhashed(dentry)) {
@@ -277,6 +281,17 @@ static int sdcardfs_open(struct inode *inode, struct file *file)
 		}
 	} else {
 		sdcardfs_set_lower_file(file, lower_file);
+#ifdef CONFIG_FUSE_FS_SHORTCIRCUIT
+		if (!err && fp && fp->fuse_open_req && !fp->filp && fp->iname) {
+			iname = inode_name(inode);
+			if (iname && !strcasecmp(iname, fp->iname)) {
+				fp->filp = file;
+				get_file(file);
+			}
+			if (iname)
+				__putname(iname);
+		}
+#endif /* CONFIG_FUSE_FS_SHORTCIRCUIT */
 	}
 
 	if (err)
