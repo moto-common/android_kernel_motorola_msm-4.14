@@ -86,8 +86,7 @@ COMMON_DIR :=	include
 COMMON_INC :=	-I$(AUDIO_ROOT)/$(COMMON_DIR)
 
 ############ TACNA ############
-TACNA_INC := -I$(ANDROID_BUILD_TOP)/vendor/cirrus/audio/dlkm \
-	-I$(ANDROID_BUILD_TOP)/vendor/cirrus/audio/dlkm/include
+TACNA_INC := -I.
 
 ############ MOT ############
 MOT_INC := -Iinclude

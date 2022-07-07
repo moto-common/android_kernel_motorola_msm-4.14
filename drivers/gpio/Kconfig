@@ -284,6 +284,12 @@ config GPIO_LYNXPOINT
 	  driver for GPIO functionality on Intel Lynxpoint PCH chipset
 	  Requires ACPI device enumeration code to set up a platform device.
 
+config GPIO_MADERA
+	bool "Cirrus Logic Madera class codecs"
+	depends on PINCTRL_MADERA
+	help
+	  Support for GPIOs on Cirrus Logic Madera class codecs.
+
 config GPIO_MB86S7X
 	bool "GPIO support for Fujitsu MB86S7x Platforms"
 	depends on ARCH_MB86S7X || COMPILE_TEST
@@ -427,6 +433,12 @@ config GPIO_SYSCON
 	depends on MFD_SYSCON && OF
 	help
 	  Say yes here to support GPIO functionality though SYSCON driver.
+
+config GPIO_TACNA
+	tristate "Cirrus Logic Tacna class codecs"
+	depends on PINCTRL_TACNA
+	help
+	  Support for GPIOs on Cirrus Logic Tacna class codecs.
 
 config GPIO_TB10X
 	bool
