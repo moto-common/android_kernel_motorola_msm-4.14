@@ -1,0 +1,13 @@
+config PINCTRL_MADERA
+	bool
+	select PINMUX
+	select GENERIC_PINCONF
+	default y if MFD_MADERA=y
+
+config PINCTRL_TACNA
+	tristate "Cirrus Tacna Pinctrl"
+	select PINMUX
+	select GENERIC_PINCONF
+
+config PINCTRL_CS47L35
+	bool

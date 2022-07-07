@@ -264,6 +264,12 @@ config KEYSTONE_IRQ
 		Support for Texas Instruments Keystone 2 IRQ controller IP which
 		is part of the Keystone 2 IPC mechanism
 
+config MADERA_IRQ
+	bool "Cirrus Madera IRQ controller"
+
+config TACNA_IRQ
+	tristate "Cirrus Tacna IRQ controller"
+
 config MIPS_GIC
 	bool
 	select GENERIC_IRQ_IPI

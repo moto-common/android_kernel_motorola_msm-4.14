@@ -402,6 +402,9 @@ config SND_SOC_ALC5623
 config SND_SOC_ALC5632
 	tristate
 
+config SND_SOC_AOV_TRIGGER
+	tristate "Cirrus AOV Trigger driver"
+
 config SND_SOC_BT_SCO
 	tristate "Dummy BT SCO codec driver"
 
@@ -423,6 +426,22 @@ config SND_SOC_CS35L34
 config SND_SOC_CS35L35
 	tristate "Cirrus Logic CS35L35 CODEC"
 	depends on I2C
+
+config SND_SOC_CS35L41
+        tristate "Cirrus Logic CS35L41 CODEC"
+        select SND_SOC_WM_ADSP
+
+config SND_SOC_CS35L41_SPI
+	bool "Cirrus Logic CS35L41 CODEC (SPI)"
+	depends on SND_SOC_CS35L41
+	depends on SPI_MASTER
+	select REGMAP_SPI
+
+config SND_SOC_CS35L41_I2C
+	bool "Cirrus Logic CS35L41 CODEC (I2C)"
+	depends on I2C
+	depends on SND_SOC_CS35L41
+	select REGMAP_I2C
 
 config SND_SOC_CS42L42
 	tristate "Cirrus Logic CS42L42 CODEC"
@@ -502,6 +521,10 @@ config SND_SOC_CS4349
 
 config SND_SOC_CS47L24
 	tristate
+
+config SND_SOC_CS48L32
+	tristate "Cirrus Logic CS48L32 CODEC"
+	depends on SND_SOC_TACNA
 
 # Cirrus Logic Quad-Channel ADC
 config SND_SOC_CS53L30
@@ -591,6 +614,13 @@ config SND_SOC_ISABELLE
 
 config SND_SOC_LM49453
 	tristate
+
+config SND_SOC_MADERA
+	tristate "Cirrus Madera codec driver"
+	depends on SND_SOC_MADERA_SLIMBUS
+
+config SND_SOC_MADERA_SLIMBUS
+       tristate "Cirrus Madera Slimbus support driver"
 
 config SND_SOC_MAX98088
        tristate
@@ -860,6 +890,9 @@ config SND_SOC_STAC9766
 
 config SND_SOC_STI_SAS
 	tristate "codec Audio support for STI SAS codec"
+
+config SND_SOC_TACNA
+	tristate "Cirrus Tacna Audio Backend"
 
 config SND_SOC_TAS2552
 	tristate "Texas Instruments TAS2552 Mono Audio amplifier"

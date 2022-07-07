@@ -1,0 +1,5 @@
+config BU520XX_PEN
+	tristate "BU520XX_PEN HALL Sensor support"
+	help
+	   Select this device if you have a BU520XX HALL Sensor
+	   Compatible device.

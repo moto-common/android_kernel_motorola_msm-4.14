@@ -230,6 +230,52 @@ config MFD_ASIC3
 	  This driver supports the ASIC3 multifunction chip found on many
 	  PDAs (mainly iPAQ and HTC based ones)
 
+config MFD_MADERA
+	bool "Cirrus Madera codecs"
+
+config MFD_TACNA
+	tristate "Cirrus Tacna codecs"
+
+config MFD_MADERA_I2C
+	bool "Cirrus Logic Madera codecs with I2C"
+	select REGMAP
+	select REGMAP_IRQ
+	select MFD_CORE
+	select REGMAP_I2C
+	select MFD_MADERA
+	select MADERA_IRQ
+	depends on I2C
+	help
+	  Support for the Cirrus Logic Madera platform audio SoC
+	  core functionality controlled via I2C.
+
+config MFD_MADERA_SPI
+	bool "Cirrus Logic Madera codecs with SPI"
+	select REGMAP
+	select REGMAP_IRQ
+	select MFD_CORE
+	select REGMAP_SPI
+	select MFD_MADERA
+	select MADERA_IRQ
+	depends on SPI_MASTER
+	help
+	  Support for the Cirrus Logic Madera platform audio SoC
+	  core functionality controlled via SPI.
+
+config MFD_CS47L35
+	bool "Cirrus Logic CS47L35"
+	select PINCTRL_CS47L35
+	depends on MFD_MADERA
+	help
+	  Support for Cirrus Logic CS47L35 Smart Codec
+
+config MFD_CS48L32
+	bool "Cirrus Logic CS48L32"
+	select PINCTRL_CS48L32
+	depends on MFD_TACNA
+	help
+	  Support for Cirrus Logic CS48L32 Smart Codec
+
 config PMIC_DA903X
 	bool "Dialog Semiconductor DA9030/DA9034 PMIC Support"
 	depends on I2C=y

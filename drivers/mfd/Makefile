@@ -228,3 +228,14 @@ obj-$(CONFIG_MFD_SUN4I_GPADC)	+= sun4i-gpadc.o
 obj-$(CONFIG_MFD_STM32_LPTIMER)	+= stm32-lptimer.o
 obj-$(CONFIG_MFD_STM32_TIMERS) 	+= stm32-timers.o
 obj-$(CONFIG_MFD_MXS_LRADC)     += mxs-lradc.o
+
+cirrus_madera-core-y	:= madera-core.o
+cirrus_madera-core-$(CONFIG_MFD_CS47L35)	+= cs47l35-tables.o
+cirrus_madera-core-$(CONFIG_MFD_MADERA_I2C)	+= madera-i2c.o
+cirrus_madera-core-$(CONFIG_MFD_MADERA_SPI)	+= madera-spi.o
+obj-$(CONFIG_MFD_MADERA) += cirrus_madera-core.o
+
+cirrus_tacna-core-y := tacna-core.o tacna-spi.o
+cirrus_tacna-core-$(CONFIG_MFD_CS48L32)	+= cs48l32-tables.o
+obj-$(CONFIG_MFD_TACNA) += cirrus_tacna-core.o
+
