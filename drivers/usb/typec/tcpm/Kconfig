@@ -1,6 +1,5 @@
 config TYPEC_TCPM
 	tristate "USB Type-C Port Controller Manager"
-	depends on USB
 	select POWER_SUPPLY
 	help
 	  The Type-C Port Controller Manager provides a USB PD and USB Type-C
