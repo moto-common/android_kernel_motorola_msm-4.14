@@ -83,6 +83,9 @@ static struct sensors_classdev __maybe_unused sensors_touch_cdev = {
 	.sensors_poll_delay = NULL,
 };
 #define REPORT_MAX_COUNT 10000
+/* Double tap detection resources */
+#define DT2W_TIME         500
+static s64 tap_time_pre = 0;
 #endif
 
 #define SUPPORT_FINGER_DATA_CHECKSUM 0x0F
@@ -770,6 +773,7 @@ int himax_input_register(struct himax_ts_data *ts)
 	set_bit(KEY_POWER, ts->input_dev->keybit);
 #endif
 #if defined(HX_SMART_WAKEUP)
+	set_bit(KEY_WAKEUP, ts->input_dev->keybit);
 	for (i = 1; i < GEST_SUP_NUM; i++)
 		set_bit(gest_key_def[i], ts->input_dev->keybit);
 
@@ -1041,6 +1045,7 @@ static int himax_wake_event_parse(struct himax_ts_data *ts, int ts_status)
 #endif
 	int i = 0, check_FC = 0, ret;
 	int j = 0, gesture_pos = 0, gesture_flag = 0;
+	s64 now = ktime_to_ms(ktime_get());
 
 	if (g_ts_dbg != 0)
 		I("%s: Entering!, ts_status=%d\n", __func__, ts_status);
@@ -1071,6 +1076,19 @@ static int himax_wake_event_parse(struct himax_ts_data *ts, int ts_status)
 
 	I("Himax gesture_flag= %x\n", gesture_flag);
 	I("Himax check_FC is %d\n", check_FC);
+
+	if (now - tap_time_pre < DT2W_TIME) {
+		I(" %s SMART WAKEUP KEY event %d press\n", __func__, KEY_WAKEUP);
+		input_report_key(ts->input_dev, KEY_WAKEUP, 1);
+		input_sync(ts->input_dev);
+		I(" %s SMART WAKEUP KEY event %d release\n", __func__, KEY_WAKEUP);
+		input_report_key(ts->input_dev, KEY_WAKEUP, 0);
+		input_sync(ts->input_dev);
+	} else {
+		tap_time_pre = now;
+	}
+
+	goto END;
 
 	if (check_FC != GEST_PTLG_ID_LEN) {
 		ret = 0;
