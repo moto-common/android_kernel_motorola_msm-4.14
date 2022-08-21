@@ -157,6 +157,7 @@
 	qcom,mdss-dsi-pan-fps-update =
 		"dfps_immediate_porch_mode_vfp";*/
 	qcom,esd-check-enabled;
+	qcom,tp_state_check_enable;
 	qcom,mdss-dsi-panel-status-check-mode = "reg_read";
 	qcom,mdss-dsi-panel-status-command = [06 01 00 01 00 00 01 0a];
 	qcom,mdss-dsi-panel-status-command-state = "dsi_lp_mode";
@@ -202,6 +203,7 @@
 	qcom,mdss-dsi-t-clk-post = <0x0C>;
 	qcom,mdss-dsi-t-clk-pre = <0x27>;
 	qcom,esd-check-enabled;
+	qcom,tp_state_check_enable;
 	qcom,mdss-dsi-panel-status-check-mode = "reg_read";
 	qcom,mdss-dsi-panel-status-command = [06 01 00 01 00 00 01 0a];
 	qcom,mdss-dsi-panel-status-command-state = "dsi_lp_mode";
@@ -243,6 +245,7 @@
 	qcom,mdss-dsi-t-clk-post = <0x0C>;
 	qcom,mdss-dsi-t-clk-pre = <0x27>;
 	qcom,esd-check-enabled;
+	qcom,tp_state_check_enable;
 	qcom,mdss-dsi-panel-status-check-mode = "reg_read";
 	qcom,mdss-dsi-panel-status-command = [06 01 00 01 00 00 01 0a];
 	qcom,mdss-dsi-panel-status-command-state = "dsi_lp_mode";
@@ -284,6 +287,7 @@
 	qcom,mdss-dsi-t-clk-post = <0x0C>;
 	qcom,mdss-dsi-t-clk-pre = <0x28>;
 	qcom,esd-check-enabled;
+	qcom,tp_state_check_enable;
 	qcom,mdss-dsi-panel-status-check-mode = "reg_read";
 	qcom,mdss-dsi-panel-status-command = [06 01 00 01 00 00 01 0a];
 	qcom,mdss-dsi-panel-status-command-state = "dsi_lp_mode";
@@ -326,6 +330,7 @@
 &dsi_hx83104a_inx_video {
 	qcom,mdss-dsi-t-clk-post = <0x0C>;
 	qcom,mdss-dsi-t-clk-pre = <0x28>;
+	qcom,tp_state_check_enable;
 	qcom,esd-check-enabled;
 	qcom,mdss-dsi-panel-status-check-mode = "reg_read";
 	qcom,mdss-dsi-panel-status-command = [14 01 00 01 00 00 01 0a];
@@ -366,6 +371,7 @@
 	qcom,mdss-dsi-t-clk-post = <0x0C>;
 	qcom,mdss-dsi-t-clk-pre = <0x27>;
 	qcom,esd-check-enabled;
+	qcom,tp_state_check_enable;
 	qcom,mdss-dsi-panel-status-check-mode = "reg_read";
 	qcom,mdss-dsi-panel-status-command = [14 01 00 01 00 00 01 0a];
 	qcom,mdss-dsi-panel-status-command-state = "dsi_lp_mode";
