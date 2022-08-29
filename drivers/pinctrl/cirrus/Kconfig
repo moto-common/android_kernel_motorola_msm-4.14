@@ -11,3 +11,6 @@ config PINCTRL_TACNA
 
 config PINCTRL_CS47L35
 	bool
+
+config PINCTRL_CS48L32
+	bool
