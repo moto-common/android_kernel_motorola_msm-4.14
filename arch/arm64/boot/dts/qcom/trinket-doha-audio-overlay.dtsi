@@ -599,7 +599,7 @@
 
 &sm6150_snd {
 	status = "ok";
-	compatible = "qcom,sm6150-tacna-asoc-snd";
+	compatible = "qcom,sm6150-moto-asoc-snd";
 	qcom,model = "trinket-moto-doha-card";
 	qcom,pri-mi2s-gpios = <&cdc_pri_mi2s_gpios>;
 
