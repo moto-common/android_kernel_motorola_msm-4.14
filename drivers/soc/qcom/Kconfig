@@ -52,6 +52,7 @@ config RAV_DTB
 
 config AMOGUS_DTB
 	depends on ARCH_QCOM
+	depends on DOHA_DTB
 	depends on SOFIA_DTB
 	depends on SOFIAP_DTB
 	depends on SOFIAR_DTB
