@@ -170,14 +170,14 @@
                fstab {
                        system {
                                dev = "/dev/block/platform/soc/4744000.sdhci/by-name/system";
-                               type = "ext4";
-                               mnt_flags = "ro,barrier=1,discard";
+                               type = "erofs";
+                               mnt_flags = "ro";
                                fsmgr_flags = "wait,slotselect,first_stage_mount";
                        };
                        vendor {
                                dev = "/dev/block/platform/soc/4744000.sdhci/by-name/vendor";
-                               type = "ext4";
-                               mnt_flags = "ro,barrier=1,discard";
+                               type = "erofs";
+                               mnt_flags = "ro";
                                fsmgr_flags = "wait,slotselect,first_stage_mount";
                        };
                        metadata {
