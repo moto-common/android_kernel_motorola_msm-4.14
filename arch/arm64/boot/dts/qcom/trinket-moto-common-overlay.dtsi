@@ -152,3 +152,31 @@
 	};
 };
 
+&firmware {
+       android {
+               vbmeta {
+                       parts = "vbmeta,boot,system,vendor,dtbo";
+               };
+               fstab {
+                       system {
+                               dev = "/dev/block/platform/soc/4744000.sdhci/by-name/system";
+                               type = "ext4";
+                               mnt_flags = "ro,barrier=1,discard";
+                               fsmgr_flags = "wait,slotselect,first_stage_mount";
+                       };
+                       vendor {
+                               dev = "/dev/block/platform/soc/4744000.sdhci/by-name/vendor";
+                               type = "ext4";
+                               mnt_flags = "ro,barrier=1,discard";
+                               fsmgr_flags = "wait,slotselect,first_stage_mount";
+                       };
+                       metadata {
+                               compatible = "android,metadata";
+                               dev = "/dev/block/platform/soc/4744000.sdhci/by-name/metadata";
+                               type = "ext4";
+                               mnt_flags = "noatime,nosuid,nodev,discard";
+                               fsmgr_flags = "wait,formattable,first_stage_mount";
+                       };
+               };
+       };
+};
