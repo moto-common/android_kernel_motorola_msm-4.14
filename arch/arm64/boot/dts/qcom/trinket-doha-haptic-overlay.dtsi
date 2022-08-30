@@ -38,6 +38,7 @@
 		haptic-context-gpio = <&tlmm 118 0>;
 		long-gain-normal = <0x80>;
 		long-gain-reduced = <0x80>;
+		firmware-name = "aw8695_haptic_doha.bin";
 		status = "okay";
 	};
 };

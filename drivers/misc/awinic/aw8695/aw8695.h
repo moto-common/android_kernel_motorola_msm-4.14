@@ -337,6 +337,8 @@ struct aw8695 {
 	struct trig trig[AW8695_TRIG_NUM];
 
 	struct haptic_audio haptic_audio;
+
+	const char *firmware_name;
 };
 
 struct aw8695_container {
