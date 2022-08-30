@@ -33,6 +33,7 @@
 	    vib_cont_num_brk = < 3 >;
 	    pinctrl-names = "default";
 	    pinctrl-0 = <&haptic_irq_default>;
+            firmware-name = "aw8695_haptic_sofia.bin";
 	    status = "okay";
 	};
 };

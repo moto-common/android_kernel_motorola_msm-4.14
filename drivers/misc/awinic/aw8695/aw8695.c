@@ -76,7 +76,6 @@ static bool is_af_enabled = false;
  *
  ******************************************************/
 #define AW8695_RTP_NAME_MAX        64
-static char *aw8695_ram_name = "aw8695_haptic.bin";
 static char aw8695_rtp_name[][AW8695_RTP_NAME_MAX] = {
 	{"aw8695_rtp.bin"},
 	{"aw8695_rtp_Argo_Navis.bin"},
@@ -358,12 +357,12 @@ static void aw8695_ram_loaded(const struct firmware *cont, void *context)
 	pr_info("%s enter\n", __func__);
 
 	if (!cont) {
-		pr_err("%s: failed to read %s\n", __func__, aw8695_ram_name);
+		pr_err("%s: failed to read %s\n", __func__, aw8695->firmware_name);
 		release_firmware(cont);
 		return;
 	}
 
-	pr_info("%s: loaded %s - size: %zu\n", __func__, aw8695_ram_name,
+	pr_info("%s: loaded %s - size: %zu\n", __func__, aw8695->firmware_name,
 		cont ? cont->size : 0);
 	/*
 	    for(i=0; i<cont->size; i++) {
@@ -413,7 +412,7 @@ static int aw8695_ram_update(struct aw8695 *aw8695)
 	aw8695->ram_init = 0;
 	aw8695->rtp_init = 0;
 	return request_firmware_nowait(THIS_MODULE, FW_ACTION_HOTPLUG,
-				       aw8695_ram_name, aw8695->dev, GFP_KERNEL,
+				       aw8695->firmware_name, aw8695->dev, GFP_KERNEL,
 				       aw8695, aw8695_ram_loaded);
 }
 
@@ -3562,6 +3561,13 @@ static int aw8695_parse_dt(struct device *dev, struct aw8695 *aw8695,
 		dev_err(dev, "%s: no reduced gain value for long vibrating provided.\n", __func__);
 	}
 	dev_info(dev, "%s: reduced gain value for long vibrating is 0x%02x.\n", __func__, aw8695->long_gain_reduced);
+
+	rc = of_property_read_string(np, "firmware-name", &aw8695->firmware_name);
+	if (rc) {
+		aw8695->firmware_name = "aw8695_haptic.bin";
+		dev_err(dev, "%s: no firmware name provided.\n", __func__);
+	}
+
 	return 0;
 }
 
