@@ -273,14 +273,31 @@ struct fts_ts_data {
 *****************************************************************************/
 extern struct fts_ts_data *fts_data;
 
+/* chip name */
+extern const char *fts_chip_name;
+
 /* communication interface */
 int fts_read(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen);
+int fts_read_v1_1(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen);
+int fts_read_v1_1_1(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen);
 int fts_read_reg(u8 addr, u8 *value);
+int fts_read_reg_v1_1(u8 addr, u8 *value);
+int fts_read_reg_v1_1_1(u8 addr, u8 *value);
 int fts_write(u8 *writebuf, u32 writelen);
+int fts_write_v1_1(u8 *writebuf, u32 writelen);
+int fts_write_v1_1_1(u8 *writebuf, u32 writelen);
 int fts_write_reg(u8 addr, u8 value);
+int fts_write_reg_v1_1(u8 addr, u8 value);
+int fts_write_reg_v1_1_1(u8 addr, u8 value);
 void fts_hid2std(void);
+void fts_hid2std_v1_1(void);
+void fts_hid2std_v1_1_1(void);
 int fts_bus_init(struct fts_ts_data *ts_data);
+int fts_bus_init_v1_1(struct fts_ts_data *ts_data);
+int fts_bus_init_v1_1_1(struct fts_ts_data *ts_data);
 int fts_bus_exit(struct fts_ts_data *ts_data);
+int fts_bus_exit_v1_1(struct fts_ts_data *ts_data);
+int fts_bus_exit_v1_1_1(struct fts_ts_data *ts_data);
 
 /* Gesture functions */
 #if FTS_GESTURE_EN

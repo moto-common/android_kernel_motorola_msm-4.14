@@ -45,7 +45,7 @@
 /*****************************************************************************
 * Global variable or extern global variabls/functions
 *****************************************************************************/
-static int fts_fwupg_hardware_reset_to_boot(void)
+static int fts_fwupg_hardware_reset_to_boot_ft8719(void)
 {
     fts_reset_proc(0);
     mdelay(8);
@@ -53,7 +53,7 @@ static int fts_fwupg_hardware_reset_to_boot(void)
     return 0;
 }
 
-static int fts_enter_into_boot(void)
+static int fts_enter_into_boot_ft8719(void)
 {
     int ret = 0;
     int i = 0;
@@ -63,7 +63,7 @@ static int fts_enter_into_boot(void)
     FTS_INFO("enter into boot environment");
     for (i = 0; i < FTS_UPGRADE_LOOP; i++) {
         /* hardware tp reset to boot */
-        fts_fwupg_hardware_reset_to_boot();
+        fts_fwupg_hardware_reset_to_boot_ft8719();
 
         /* enter into boot & check boot id*/
         for (j = 0; j < FTS_READ_BOOT_ID_TIMEOUT; j++) {
@@ -83,7 +83,7 @@ static int fts_enter_into_boot(void)
     return -EIO;
 }
 
-static bool fts_check_fast_download(void)
+static bool fts_check_fast_download_ft8719(void)
 {
     int ret = 0;
     u8 cmd[6] = {0xF2, 0x00, 0x78, 0x0A, 0x00, 0x02};
@@ -113,7 +113,7 @@ read_err:
     return false;
 }
 
-static int fts_pram_write(u32 saddr, const u8 *buf, u32 len)
+static int fts_pram_write_ft8719(u32 saddr, const u8 *buf, u32 len)
 {
     int ret = 0;
     int i = 0;
@@ -138,7 +138,7 @@ static int fts_pram_write(u32 saddr, const u8 *buf, u32 len)
         return -EINVAL;
     }
 
-    fd_support = fts_check_fast_download();
+    fd_support = fts_check_fast_download_ft8719();
     if (!fd_support)
         packet_size = FTS_FLASH_PACKET_LENGTH_SPI_LOW;
     cmd = kzalloc(packet_size + FTS_CMD_WRITE_LEN, GFP_KERNEL);
@@ -188,7 +188,7 @@ write_pram_err:
     return ret;
 }
 
-static int fts_ecc_cal_tp(u32 ecc_saddr, u32 ecc_len, u16 *ecc_value)
+static int fts_ecc_cal_tp_ft8719(u32 ecc_saddr, u32 ecc_len, u16 *ecc_value)
 {
     int ret = 0;
     int i = 0;
@@ -241,7 +241,7 @@ static int fts_ecc_cal_tp(u32 ecc_saddr, u32 ecc_len, u16 *ecc_value)
     return 0;
 }
 
-static int fts_ecc_cal_host(const u8 *data, u32 data_len, u16 *ecc_value)
+static int fts_ecc_cal_host_ft8719(const u8 *data, u32 data_len, u16 *ecc_value)
 {
     u16 ecc = 0;
     u16 i = 0;
@@ -262,7 +262,7 @@ static int fts_ecc_cal_host(const u8 *data, u32 data_len, u16 *ecc_value)
     return 0;
 }
 
-static int fts_pram_start(void)
+static int fts_pram_start_ft8719(void)
 {
     int ret = 0;
     u8 cmd = FTS_ROMBOOT_CMD_START_APP;
@@ -285,7 +285,7 @@ static int fts_pram_start(void)
  *
  * return 0 if success, otherwise return error code
  */
-int fts_fw_write_start(const u8 *buf, u32 len, bool need_reset)
+int fts_fw_write_start_ft8719(const u8 *buf, u32 len, bool need_reset)
 {
     int ret = 0;
     u16 ecc_in_host = 0;
@@ -317,7 +317,7 @@ int fts_fw_write_start(const u8 *buf, u32 len, bool need_reset)
 
     if (need_reset) {
         /* enter into boot environment */
-        ret = fts_enter_into_boot();
+        ret = fts_enter_into_boot_ft8719();
         if (ret < 0) {
             FTS_ERROR("enter into boot environment fail");
             return ret;
@@ -325,20 +325,20 @@ int fts_fw_write_start(const u8 *buf, u32 len, bool need_reset)
     }
 
     /* write pram */
-    ret = fts_pram_write(fw_start_addr, buf, fw_len);
+    ret = fts_pram_write_ft8719(fw_start_addr, buf, fw_len);
     if (ret < 0) {
         FTS_ERROR("write pram fail");
         return ret;
     }
 
     /* ecc check */
-    ret = fts_ecc_cal_host(buf, fw_len, &ecc_in_host);
+    ret = fts_ecc_cal_host_ft8719(buf, fw_len, &ecc_in_host);
     if (ret < 0) {
         FTS_ERROR("ecc in host calc fail");
         return ret;
     }
 
-    ret = fts_ecc_cal_tp(fw_start_addr, fw_len, &ecc_in_tp);
+    ret = fts_ecc_cal_tp_ft8719(fw_start_addr, fw_len, &ecc_in_tp);
     if (ret < 0) {
         FTS_ERROR("ecc in tp calc fail");
         return ret;
@@ -351,7 +351,7 @@ int fts_fw_write_start(const u8 *buf, u32 len, bool need_reset)
     }
 
     /* remap pram and run fw */
-    ret = fts_pram_start();
+    ret = fts_pram_start_ft8719();
     if (ret < 0) {
         FTS_ERROR("pram start fail");
         return ret;
@@ -361,4 +361,3 @@ int fts_fw_write_start(const u8 *buf, u32 len, bool need_reset)
     FTS_INFO("fw download successfully");
     return 0;
 }
-

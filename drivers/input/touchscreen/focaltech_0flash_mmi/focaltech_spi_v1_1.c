@@ -75,7 +75,7 @@
 * functions body
 *****************************************************************************/
 /* spi interface */
-static int fts_spi_transfer(u8 *tx_buf, u8 *rx_buf, u32 len)
+static int fts_spi_transfer_v1_1(u8 *tx_buf, u8 *rx_buf, u32 len)
 {
     int ret = 0;
     struct spi_device *spi = fts_data->spi;
@@ -114,7 +114,7 @@ static int fts_spi_transfer(u8 *tx_buf, u8 *rx_buf, u32 len)
     return ret;
 }
 
-static void crckermit(u8 *data, u16 len, u16 *crc_out)
+static void crckermit_v1_1(u8 *data, u16 len, u16 *crc_out)
 {
     u16 i = 0;
     u16 j = 0;
@@ -133,12 +133,12 @@ static void crckermit(u8 *data, u16 len, u16 *crc_out)
     *crc_out = crc;
 }
 
-static int rdata_check(u8 *rdata, u32 rlen)
+static int rdata_check_v1_1(u8 *rdata, u32 rlen)
 {
     u16 crc_calc = 0;
     u16 crc_read = 0;
 
-    crckermit(rdata, rlen - 2, &crc_calc);
+    crckermit_v1_1(rdata, rlen - 2, &crc_calc);
     crc_read = (u16)(rdata[rlen - 1] << 8) + rdata[rlen - 2];
     if (crc_calc != crc_read) {
         return -EIO;
@@ -147,7 +147,7 @@ static int rdata_check(u8 *rdata, u32 rlen)
     return 0;
 }
 
-static int fts_wait_idle(void)
+static int fts_wait_idle_v1_1(void)
 {
     int ret = 0;
     int i = 0;
@@ -168,7 +168,7 @@ static int fts_wait_idle(void)
     txlen = CD_PACKAGE_BUFLEN + 1;
     for (i = 0; i < retry_timeout; i++) {
         udelay(BUSY_QUERY_DELAY);
-        ret = fts_spi_transfer(txbuf, rxbuf, txlen);
+        ret = fts_spi_transfer_v1_1(txbuf, rxbuf, txlen);
         if (ret >= 0) {
             status = (int)rxbuf[CD_PACKAGE_BUFLEN];
             if ((status & status_mask) == idle_status) {
@@ -185,7 +185,7 @@ static int fts_wait_idle(void)
     return (int)status;
 }
 
-static int fts_cmdpkg_wirte(u8 ctrl, u8 *cmd, u32 cmdlen)
+static int fts_cmdpkg_wirte_v1_1(u8 ctrl, u8 *cmd, u32 cmdlen)
 {
     int i = 0;
     u8 *txbuf = fts_data->bus_tx_buf;
@@ -205,10 +205,10 @@ static int fts_cmdpkg_wirte(u8 ctrl, u8 *cmd, u32 cmdlen)
         txbuf[txlen++] = cmd[i];
     }
 
-    return fts_spi_transfer(txbuf, rxbuf, txlen);
+    return fts_spi_transfer_v1_1(txbuf, rxbuf, txlen);
 }
 
-static int fts_boot_write(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen)
+static int fts_boot_write_v1_1(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen)
 {
     int ret = 0;
     struct fts_ts_data *ts_data = fts_data;
@@ -225,7 +225,7 @@ static int fts_boot_write(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen)
 
     mutex_lock(&ts_data->bus_lock);
     /* wait spi idle */
-    ret = fts_wait_idle();
+    ret = fts_wait_idle_v1_1();
     if (ret < 0) {
         FTS_ERROR("wait spi idle fail");
         goto err_boot_write;
@@ -237,7 +237,7 @@ static int fts_boot_write(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen)
         tmpcmd[cmdlen++] = (datalen >> 8) & 0xFF;
         tmpcmd[cmdlen++] = datalen & 0xFF;
     }
-    ret = fts_cmdpkg_wirte(WRITE_CMD, tmpcmd, cmdlen);
+    ret = fts_cmdpkg_wirte_v1_1(WRITE_CMD, tmpcmd, cmdlen);
     if (ret < 0) {
         FTS_ERROR("command package wirte fail");
         goto err_boot_write;
@@ -246,7 +246,7 @@ static int fts_boot_write(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen)
     /* have data, transfer data */
     if (data && datalen) {
         /* wait spi idle */
-        ret = fts_wait_idle();
+        ret = fts_wait_idle_v1_1();
         if (ret < 0) {
             FTS_ERROR("wait spi idle from cmd fail");
             goto err_boot_write;
@@ -278,7 +278,7 @@ static int fts_boot_write(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen)
         txlen = CD_PACKAGE_BUFLEN + datalen;
         memcpy(txbuf + CD_PACKAGE_BUFLEN, data, datalen);
 
-        ret = fts_spi_transfer(txbuf, rxbuf, txlen);
+        ret = fts_spi_transfer_v1_1(txbuf, rxbuf, txlen);
         if (ret < 0) {
             FTS_ERROR("spi_transfer(wirte) fail");
         }
@@ -300,7 +300,7 @@ err_boot_write:
     return ret;
 }
 
-int fts_write(u8 *writebuf, u32 writelen)
+int fts_write_v1_1(u8 *writebuf, u32 writelen)
 {
     u8 *cmd = NULL;
     u32 cmdlen = 0;
@@ -331,15 +331,15 @@ int fts_write(u8 *writebuf, u32 writelen)
         datalen = writelen - cmdlen;
     }
 
-    return fts_boot_write(&cmd[0], cmdlen, data, datalen);
+    return fts_boot_write_v1_1(&cmd[0], cmdlen, data, datalen);
 }
 
-int fts_write_reg(u8 addr, u8 value)
+int fts_write_reg_v1_1(u8 addr, u8 value)
 {
-    return fts_boot_write(&addr, 1, &value, 1);
+    return fts_boot_write_v1_1(&addr, 1, &value, 1);
 }
 
-int fts_read(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen)
+int fts_read_v1_1(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen)
 {
     int ret = 0;
     struct fts_ts_data *ts_data = fts_data;
@@ -353,7 +353,7 @@ int fts_read(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen)
     mutex_lock(&ts_data->bus_lock);
     if (cmd && cmdlen) {
         /* wait spi idle */
-        ret = fts_wait_idle();
+        ret = fts_wait_idle_v1_1();
         if (ret < 0) {
             FTS_ERROR("wait spi idle fail");
             goto boot_read_err;
@@ -366,14 +366,14 @@ int fts_read(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen)
             tmpcmd[cmdlen++] = (datalen >> 8) & 0xFF;
             tmpcmd[cmdlen++] = datalen & 0xFF;
         }
-        ret = fts_cmdpkg_wirte(ctrl, tmpcmd, cmdlen);
+        ret = fts_cmdpkg_wirte_v1_1(ctrl, tmpcmd, cmdlen);
         if (ret < 0) {
             FTS_ERROR("command package wirte fail");
             goto boot_read_err;
         }
 
         /* wait spi idle */
-        ret = fts_wait_idle();
+        ret = fts_wait_idle_v1_1();
         if (ret < 0) {
             FTS_ERROR("wait spi idle from cmd fail");
             goto boot_read_err;
@@ -408,7 +408,7 @@ int fts_read(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen)
         if (ctrl & DATA_CRC_EN) {
             txlen = txlen + 2;
         }
-        ret = fts_spi_transfer(txbuf, rxbuf, txlen);
+        ret = fts_spi_transfer_v1_1(txbuf, rxbuf, txlen);
         if (ret < 0) {
             FTS_ERROR("spi_transfer(read) fail");
             goto boot_read_err;
@@ -416,7 +416,7 @@ int fts_read(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen)
         memcpy(data, rxbuf + CD_PACKAGE_BUFLEN, datalen);
         /* crc check */
         if (ctrl & DATA_CRC_EN) {
-            ret = rdata_check(rxbuf + CD_PACKAGE_BUFLEN,
+            ret = rdata_check_v1_1(rxbuf + CD_PACKAGE_BUFLEN,
                               txlen - CD_PACKAGE_BUFLEN);
             if (ret < 0) {
                 FTS_INFO("read data(addr:%x) crc check incorrect", cmdaddr);
@@ -440,12 +440,12 @@ boot_read_err:
     return ret;
 }
 
-int fts_read_reg(u8 addr, u8 *value)
+int fts_read_reg_v1_1(u8 addr, u8 *value)
 {
-    return fts_read(&addr, 1, value, 1);
+    return fts_read_v1_1(&addr, 1, value, 1);
 }
 
-int fts_bus_init(struct fts_ts_data *ts_data)
+int fts_bus_init_v1_1(struct fts_ts_data *ts_data)
 {
     FTS_FUNC_ENTER();
     ts_data->bus_tx_buf = kzalloc(SPI_BUF_LENGTH, GFP_KERNEL);
@@ -463,7 +463,7 @@ int fts_bus_init(struct fts_ts_data *ts_data)
     return 0;
 }
 
-int fts_bus_exit(struct fts_ts_data *ts_data)
+int fts_bus_exit_v1_1(struct fts_ts_data *ts_data)
 {
     FTS_FUNC_ENTER();
     if (ts_data && ts_data->bus_tx_buf) {

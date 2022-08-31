@@ -178,7 +178,8 @@ struct fts_upgrade {
 * Global variable or extern global variabls/functions
 *****************************************************************************/
 int fts_check_bootid(void);
-int fts_fw_write_start(const u8 *buf, u32 len, bool need_reset);
+int fts_fw_write_start_ft8719(const u8 *buf, u32 len, bool need_reset);
+int fts_fw_write_start_ft8756(const u8 *buf, u32 len, bool need_reset);
 
 /*****************************************************************************
 * Static function prototypes
