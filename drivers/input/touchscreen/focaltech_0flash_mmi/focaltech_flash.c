@@ -104,7 +104,10 @@ static int fts_fw_download(const u8 *buf, u32 len, bool need_reset)
 
     for (i = 0; i < 3; i++) {
         FTS_INFO("fw download times:%d", i + 1);
-        ret = fts_fw_write_start(buf, len, need_reset);
+        if ((strcmp(fts_chip_name, "ft8756") == 0) || (strcmp(fts_chip_name, "ft8009")) == 0)
+            ret = fts_fw_write_start_ft8756(buf, len, need_reset);
+        else if (strcmp(fts_chip_name, "ft8719"))
+            ret = fts_fw_write_start_ft8719(buf, len, need_reset);
         if (0 == ret)
             break;
     }
