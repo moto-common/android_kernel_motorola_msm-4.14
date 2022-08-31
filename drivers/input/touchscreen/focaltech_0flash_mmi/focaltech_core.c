@@ -71,6 +71,8 @@ bool 	FTS_USB_detect_flag;
 /*****************************************************************************
 * Global variable or extern global variabls/functions
 *****************************************************************************/
+const char *fts_chip_name;
+
 struct fts_ts_data *fts_data;
 
 #ifdef FOCALTECH_PALM_SENSOR_EN
@@ -241,11 +243,14 @@ static int fts_get_chip_types(
 
     struct ft_chip_t ctype_8756[] = {{0x15, 0x87, 0x56, 0x87, 0x56, 0xF7, 0xA6, 0x00, 0x00}};
     struct ft_chip_t ctype_8009[] = {{0x17, 0x80, 0x09, 0x80, 0x09, 0x80, 0xA9, 0x00, 0x00}};
+    struct ft_chip_t ctype_8719[] = {{0x0D ,0x87, 0x19, 0x87, 0x19, 0x87, 0xA9, 0x87, 0xB9}};
 
     if ((id_h == 0x87) && (id_l == 0x56))
         memcpy(ctype, ctype_8756, sizeof(ctype_8756));
     else if ((id_h == 0x80) && (id_l == 0x9))
         memcpy(ctype, ctype_8009, sizeof(ctype_8009));
+    else if ((id_h == 0x87) && (id_l == 0x19))
+        memcpy(ctype, ctype_8719, sizeof(ctype_8719));
     else if ((id_h == 0) || (id_l == 0)) {
         FTS_ERROR("id_h/id_l is 0");
         return -EINVAL;
@@ -611,24 +616,23 @@ static int fts_read_touchdata(struct fts_ts_data *data)
 
     memset(buf, 0xFF, data->pnt_buf_size);
 
-#if defined(CONFIG_INPUT_FOCALTECH_0FLASH_MMI_IC_NAME_FT8756) || \
-	defined (CONFIG_INPUT_FOCALTECH_0FLASH_MMI_IC_NAME_FT8009)
-    buf[0] = 0x01;
-    ret = fts_read(buf, 1, buf + 1, data->pnt_buf_size - 1);
-    if ((0xEF == buf[1]) && (0xEF == buf[2]) && (0xEF == buf[3]))
-#elif defined(CONFIG_INPUT_FOCALTECH_0FLASH_MMI_IC_NAME_FT8006S_AA)
-    buf[0] = 0x01;
-    ret = fts_read(buf, 1, buf + 1, data->pnt_buf_size - 1);
-    if (((0xEF == buf[2]) && (0xEF == buf[3]) && (0xEF == buf[4]))
-    || ((ret < 0) && (0xEF == buf[1])))
-#elif defined(CONFIG_INPUT_FOCALTECH_0FLASH_MMI_IC_NAME_FT8719)
-    ret = fts_read(NULL, 0, buf + 1, data->pnt_buf_size - 1);
-    if ((0xEF == buf[2]) && (0xEF == buf[3]) && (0xEF == buf[4]))
-#endif
-    {
-        /* check if need recovery fw */
-        fts_fw_recovery();
-        return 1;
+    if ((strcmp(fts_chip_name, "ft8756") == 0) || (strcmp(fts_chip_name, "ft8009")) == 0) {
+        buf[0] = 0x01;
+        ret = fts_read(buf, 1, buf + 1, data->pnt_buf_size - 1);
+        if ((0xEF == buf[1]) && (0xEF == buf[2]) && (0xEF == buf[3]))
+        {
+            /* check if need recovery fw */
+            fts_fw_recovery();
+            return 1;
+        }
+    } else if ((strcmp(fts_chip_name, "ft8719")) == 0) {
+        ret = fts_read(NULL, 0, buf + 1, data->pnt_buf_size - 1);
+        if ((0xEF == buf[2]) && (0xEF == buf[3]) && (0xEF == buf[4]))
+        {
+            /* check if need recovery fw */
+            fts_fw_recovery();
+            return 1;
+        }
     }
 
     if ((ret < 0) || ((buf[1] & 0xF0) != 0x90)) {
@@ -2355,18 +2359,26 @@ static int fts_ts_resume(struct device *dev)
 static int fts_ts_probe(struct spi_device *spi)
 {
     int ret = 0;
+    struct device *dev = &spi->dev;
     struct fts_ts_data *ts_data = NULL;
 
-    FTS_INFO("Touch Screen(SPI BUS) driver prboe...");
-#if defined(CONFIG_INPUT_FOCALTECH_0FLASH_MMI_IC_NAME_FT8756) || \
-	defined (CONFIG_INPUT_FOCALTECH_0FLASH_MMI_IC_NAME_FT8006S_AA) || \
-	defined (CONFIG_INPUT_FOCALTECH_0FLASH_MMI_IC_NAME_FT8009)
-    spi->mode = SPI_MODE_0;
-#elif defined(CONFIG_INPUT_FOCALTECH_0FLASH_MMI_IC_NAME_FT8719)
-    spi->mode = SPI_MODE_1;
-#else
-    spi->mode = SPI_MODE_1;
-#endif
+    FTS_INFO("Touch Screen(SPI BUS) driver probe...");
+
+    ret = of_property_read_string(dev->of_node, "focaltech,name",
+            &fts_chip_name);
+    if (ret < 0) {
+        FTS_ERROR("Unable to read chip name\n");
+        return ret;
+    } else {
+        FTS_INFO("chip name is %s", fts_chip_name);
+    }
+
+    if ((strcmp(fts_chip_name, "ft8756") == 0) || (strcmp(fts_chip_name, "ft8009")) == 0)
+        spi->mode = SPI_MODE_0;
+    else if ((strcmp(fts_chip_name, "ft8719")) == 0)
+        spi->mode = SPI_MODE_1;
+    else
+        spi->mode = SPI_MODE_1;
 
     spi->bits_per_word = 8;
     if (spi->max_speed_hz > FTS_SPI_CLK_MAX)

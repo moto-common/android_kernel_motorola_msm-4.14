@@ -48,7 +48,7 @@
 /*****************************************************************************
 * Global variable or extern global variabls/functions
 *****************************************************************************/
-static int fts_fwupg_hardware_reset_to_boot(void)
+static int fts_fwupg_hardware_reset_to_boot_ft8756(void)
 {
     fts_reset_proc(0);
     mdelay(8);
@@ -56,7 +56,7 @@ static int fts_fwupg_hardware_reset_to_boot(void)
     return 0;
 }
 
-static int fts_enter_into_boot(void)
+static int fts_enter_into_boot_ft8756(void)
 {
     int ret = 0;
     int i = 0;
@@ -66,7 +66,7 @@ static int fts_enter_into_boot(void)
     FTS_INFO("enter into boot environment");
     for (i = 0; i < FTS_UPGRADE_LOOP; i++) {
         /* hardware tp reset to boot */
-        fts_fwupg_hardware_reset_to_boot();
+        fts_fwupg_hardware_reset_to_boot_ft8756();
 
         /* enter into boot & check boot id*/
         for (j = 0; j < FTS_READ_BOOT_ID_TIMEOUT; j++) {
@@ -87,7 +87,7 @@ static int fts_enter_into_boot(void)
 }
 
 
-static int fts_dpram_write(u32 saddr, const u8 *buf, u32 len, bool wpram)
+static int fts_dpram_write_ft8756(u32 saddr, const u8 *buf, u32 len, bool wpram)
 {
     int ret = 0;
     int i = 0;
@@ -164,7 +164,7 @@ write_pram_err:
     return ret;
 }
 
-static int fts_ecc_cal_tp(u32 ecc_saddr, u32 ecc_len, u16 *ecc_value)
+static int fts_ecc_cal_tp_ft8756(u32 ecc_saddr, u32 ecc_len, u16 *ecc_value)
 {
     int ret = 0;
     int i = 0;
@@ -217,7 +217,7 @@ static int fts_ecc_cal_tp(u32 ecc_saddr, u32 ecc_len, u16 *ecc_value)
     return 0;
 }
 
-static int fts_ecc_cal_host(const u8 *data, u32 data_len, u16 *ecc_value)
+static int fts_ecc_cal_host_ft8756(const u8 *data, u32 data_len, u16 *ecc_value)
 {
     u16 ecc = 0;
     u16 i = 0;
@@ -238,7 +238,7 @@ static int fts_ecc_cal_host(const u8 *data, u32 data_len, u16 *ecc_value)
     return 0;
 }
 
-static int fts_ecc_check(const u8 *buf, u32 len, u32 ecc_saddr)
+static int fts_ecc_check_ft8756(const u8 *buf, u32 len, u32 ecc_saddr)
 {
     int ret = 0;
     int i = 0;
@@ -261,13 +261,13 @@ static int fts_ecc_check(const u8 *buf, u32 len, u32 ecc_saddr)
         if ((i == (packet_number - 1)) && packet_remainder)
             packet_length = packet_remainder;
 
-        ret = fts_ecc_cal_host(buf + offset, packet_length, &ecc_in_host);
+        ret = fts_ecc_cal_host_ft8756(buf + offset, packet_length, &ecc_in_host);
         if (ret < 0) {
             FTS_ERROR("ecc in host calc fail");
             return ret;
         }
 
-        ret = fts_ecc_cal_tp(ecc_saddr + offset, packet_length, &ecc_in_tp);
+        ret = fts_ecc_cal_tp_ft8756(ecc_saddr + offset, packet_length, &ecc_in_tp);
         if (ret < 0) {
             FTS_ERROR("ecc in tp calc fail");
             return ret;
@@ -286,7 +286,7 @@ static int fts_ecc_check(const u8 *buf, u32 len, u32 ecc_saddr)
     return 0;
 }
 
-static int fts_pram_write_ecc(const u8 *buf, u32 len)
+static int fts_pram_write_ecc_ft8756(const u8 *buf, u32 len)
 {
     int ret = 0;
     u32 pram_app_size = 0;
@@ -314,14 +314,14 @@ static int fts_pram_write_ecc(const u8 *buf, u32 len)
 
     FTS_INFO("pram app length in fact:%d", pram_app_size);
     /* write pram */
-    ret = fts_dpram_write(pram_start_addr, buf, pram_app_size, true);
+    ret = fts_dpram_write_ft8756(pram_start_addr, buf, pram_app_size, true);
     if (ret < 0) {
         FTS_ERROR("write pram fail");
         return ret;
     }
 
     /* check ecc */
-    ret = fts_ecc_check(buf, pram_app_size, pram_start_addr);
+    ret = fts_ecc_check_ft8756(buf, pram_app_size, pram_start_addr);
     if (ret < 0) {
         FTS_ERROR("pram ecc check fail");
         return ret;
@@ -331,7 +331,7 @@ static int fts_pram_write_ecc(const u8 *buf, u32 len)
     return 0;
 }
 
-static int fts_dram_write_ecc(const u8 *buf, u32 len)
+static int fts_dram_write_ecc_ft8756(const u8 *buf, u32 len)
 {
     int ret = 0;
     u32 dram_size = 0;
@@ -364,14 +364,14 @@ static int fts_dram_write_ecc(const u8 *buf, u32 len)
     dram_buf = buf + pram_app_size;
     FTS_INFO("dram buf length in fact:%d,offset:%d", dram_size, pram_app_size);
     /* write pram */
-    ret = fts_dpram_write(dram_start_addr, dram_buf, dram_size, false);
+    ret = fts_dpram_write_ft8756(dram_start_addr, dram_buf, dram_size, false);
     if (ret < 0) {
         FTS_ERROR("write dram fail");
         return ret;
     }
 
     /* check ecc */
-    ret = fts_ecc_check(dram_buf, dram_size, dram_start_addr);
+    ret = fts_ecc_check_ft8756(dram_buf, dram_size, dram_start_addr);
     if (ret < 0) {
         FTS_ERROR("dram ecc check fail");
         return ret;
@@ -381,7 +381,7 @@ static int fts_dram_write_ecc(const u8 *buf, u32 len)
     return 0;
 }
 
-static int fts_pram_start(void)
+static int fts_pram_start_ft8756(void)
 {
     int ret = 0;
     u8 cmd = FTS_ROMBOOT_CMD_START_APP;
@@ -404,7 +404,7 @@ static int fts_pram_start(void)
  *
  * return 0 if success, otherwise return error code
  */
-int fts_fw_write_start(const u8 *buf, u32 len, bool need_reset)
+int fts_fw_write_start_ft8756(const u8 *buf, u32 len, bool need_reset)
 {
     int ret = 0;
 
@@ -413,7 +413,7 @@ int fts_fw_write_start(const u8 *buf, u32 len, bool need_reset)
 
     if (need_reset) {
         /* enter into boot environment */
-        ret = fts_enter_into_boot();
+        ret = fts_enter_into_boot_ft8756();
         if (ret < 0) {
             FTS_ERROR("enter into boot environment fail");
             return ret;
@@ -421,21 +421,21 @@ int fts_fw_write_start(const u8 *buf, u32 len, bool need_reset)
     }
 
     /* write pram */
-    ret = fts_pram_write_ecc(buf, len);
+    ret = fts_pram_write_ecc_ft8756(buf, len);
     if (ret < 0) {
         FTS_ERROR("write pram fail");
         return ret;
     }
 
     /* write dram */
-    ret = fts_dram_write_ecc(buf, len);
+    ret = fts_dram_write_ecc_ft8756(buf, len);
     if (ret < 0) {
         FTS_ERROR("write dram fail");
         return ret;
     }
 
     /* remap pram and run fw */
-    ret = fts_pram_start();
+    ret = fts_pram_start_ft8756();
     if (ret < 0) {
         FTS_ERROR("pram start fail");
         return ret;
@@ -445,4 +445,3 @@ int fts_fw_write_start(const u8 *buf, u32 len, bool need_reset)
     FTS_INFO("fw download successfully");
     return 0;
 }
-

@@ -6,14 +6,11 @@ focaltech_0flash_mmi-y += focaltech_flash.o
 focaltech_0flash_mmi-y += focaltech_gesture.o
 focaltech_0flash_mmi-y += focaltech_point_report_check.o
 
-focaltech_0flash_mmi-$(CONFIG_INPUT_FOCALTECH_0FLASH_MMI_IC_NAME_FT8719) += focaltech_flash_ft8719.o
-focaltech_0flash_mmi-$(CONFIG_INPUT_FOCALTECH_0FLASH_MMI_IC_NAME_FT8719) += focaltech_spi_v1_1.o
-
-focaltech_0flash_mmi-$(CONFIG_INPUT_FOCALTECH_0FLASH_MMI_IC_NAME_FT8756) += focaltech_flash_ft8756.o
-focaltech_0flash_mmi-$(CONFIG_INPUT_FOCALTECH_0FLASH_MMI_IC_NAME_FT8756) += focaltech_spi_v1_1_1.o
-
-focaltech_0flash_mmi-$(CONFIG_INPUT_FOCALTECH_0FLASH_MMI_IC_NAME_FT8009) += focaltech_flash_ft8756.o
-focaltech_0flash_mmi-$(CONFIG_INPUT_FOCALTECH_0FLASH_MMI_IC_NAME_FT8009) += focaltech_spi_v1_1_1.o
+focaltech_0flash_mmi-y += focaltech_spi.o
+focaltech_0flash_mmi-y += focaltech_spi_v1_1.o
+focaltech_0flash_mmi-y += focaltech_spi_v1_1_1.o
+focaltech_0flash_mmi-y += focaltech_flash_ft8719.o
+focaltech_0flash_mmi-y += focaltech_flash_ft8756.o
 
 ifneq ($(filter m y,$(CONFIG_TOUCHSCREEN_FTS_0FLASH_MMI_ENABLE_DOUBLE_TAP)),)
 	ccflags-y += -DFOCALTECH_SENSOR_EN
