@@ -42,3 +42,7 @@
 		status = "okay";
 	};
 };
+
+&pmi632_vib {
+        status = "disabled";
+};
