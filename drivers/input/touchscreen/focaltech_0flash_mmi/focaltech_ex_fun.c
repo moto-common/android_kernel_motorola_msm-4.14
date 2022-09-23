@@ -668,11 +668,36 @@ static ssize_t fts_poweron_show(struct device *dev, struct device_attribute *att
 
 static ssize_t fts_productinfo_show(struct device *dev, struct device_attribute *attr, char *buf)
 {
-    struct fts_ts_data *ts_data = fts_data;
-    struct fts_ts_platform_data *pdata = ts_data->pdata;
-    return scnprintf(buf, PAGE_SIZE, "%s\n", pdata->chip_name);
+    return scnprintf(buf, PAGE_SIZE, "%s\n", FTS_CHIP_NAME);
 }
 
+static ssize_t fts_ic_ver_show(struct device *dev,
+	struct device_attribute *attr, char *buf)
+{
+    int count = 0;
+    u8 val = 0;
+    struct input_dev *input_dev = fts_data->input_dev;
+    mutex_lock(&input_dev->mutex);
+#if FTS_ESDCHECK_EN
+    fts_esdcheck_proc_busy(1);
+#endif
+    fts_read_reg(FTS_REG_VENDOR_ID, &val);
+    count += snprintf(buf + count, PAGE_SIZE, "Product ID: 0x%02x\n", val);
+    fts_read_reg(FTS_REG_FW_VER, &val);
+    count += snprintf(buf + count, PAGE_SIZE, "Build ID: 0000-%02x\n", val);
+    count += scnprintf(buf + count, PAGE_SIZE, "IC: %s\n", FTS_CHIP_NAME);
+#if FTS_ESDCHECK_EN
+    fts_esdcheck_proc_busy(0);
+#endif
+    mutex_unlock(&input_dev->mutex);
+    return count;
+}
+
+static ssize_t fts_name_show(struct device *dev,
+	struct device_attribute *attr, char *buf)
+{
+    return scnprintf(buf, PAGE_SIZE, "focaltech");
+}
 /* fts_tpfwver interface */
 static ssize_t fts_tpfwver_show(
     struct device *dev, struct device_attribute *attr, char *buf)
@@ -1085,8 +1110,6 @@ static ssize_t doreflash_store(struct device *dev,
     char prefix[FILE_NAME_LENGTH] = "focaltech";
     char template[FILE_NAME_LENGTH];
     struct input_dev *input_dev = fts_data->input_dev;
-    struct fts_ts_data *ts_data = fts_data;
-    struct fts_ts_platform_data *pdata = ts_data->pdata;
 
     if (count > FILE_NAME_LENGTH) {
         FTS_ERROR("%s: FW filename is too long\n", __func__);
@@ -1099,9 +1122,9 @@ static ssize_t doreflash_store(struct device *dev,
             return -EINVAL;
         }
 
-        snprintf(template, sizeof(template), "-%s-", pdata->chip_name);
+        snprintf(template, sizeof(template), "-%s-", FTS_CHIP_NAME);
         if (!strnstr(buf + strnlen(prefix, sizeof(prefix)), template, count)) {
-            FTS_ERROR("%s: FW does not belong to %s\n", __func__, pdata->chip_name);
+            FTS_ERROR("%s: FW does not belong to %s\n", __func__, FTS_CHIP_NAME);
             return -EINVAL;
         }
     }
@@ -1319,6 +1342,8 @@ static DEVICE_ATTR(flashprog, S_IRUGO, flashprog_show, NULL);
 static DEVICE_ATTR(doreflash, S_IWUSR | S_IWGRP, NULL, doreflash_store);
 static DEVICE_ATTR(poweron, S_IRUGO, fts_poweron_show, NULL);
 static DEVICE_ATTR(productinfo, S_IRUGO, fts_productinfo_show, NULL);
+static DEVICE_ATTR(ic_ver, S_IRUGO, fts_ic_ver_show, NULL);
+static DEVICE_ATTR(name, S_IRUGO, fts_name_show, NULL);
 
 /* add your attr in here*/
 static struct attribute *fts_attributes[] = {
@@ -1342,6 +1367,8 @@ static struct attribute *fts_attributes[] = {
     &dev_attr_doreflash.attr,
     &dev_attr_poweron.attr,
     &dev_attr_productinfo.attr,
+    &dev_attr_ic_ver.attr,
+    &dev_attr_name.attr,
     &dev_attr_panel_supplier.attr,
     NULL
 };
@@ -1395,8 +1422,6 @@ static int fts_sysfs_class(void *_data, bool create)
 	static struct class *touchscreen_class;
 	static struct device *ts_class_dev;
 	static int minor;
-	struct fts_ts_data *ts_data = fts_data;
-	struct fts_ts_platform_data *pdata = ts_data->pdata;
 
 	if (create) {
 		minor = input_get_new_minor(data->spi->chip_select,
@@ -1415,7 +1440,7 @@ static int fts_sysfs_class(void *_data, bool create)
 
 		ts_class_dev = device_create(touchscreen_class, NULL,
 				MKDEV(INPUT_MAJOR, minor),
-				data, pdata->chip_name);
+				data, FTS_CHIP_NAME);
 		if (IS_ERR(ts_class_dev)) {
 			error = PTR_ERR(ts_class_dev);
 			ts_class_dev = NULL;

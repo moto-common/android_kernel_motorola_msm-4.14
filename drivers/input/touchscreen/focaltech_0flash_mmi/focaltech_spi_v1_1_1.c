@@ -70,7 +70,7 @@
 * functions body
 *****************************************************************************/
 /* spi interface */
-static int fts_spi_transfer_v1_1_1(u8 *tx_buf, u8 *rx_buf, u32 len)
+static int fts_spi_transfer(u8 *tx_buf, u8 *rx_buf, u32 len)
 {
     int ret = 0;
     struct spi_device *spi = fts_data->spi;
@@ -93,7 +93,7 @@ static int fts_spi_transfer_v1_1_1(u8 *tx_buf, u8 *rx_buf, u32 len)
     return ret;
 }
 
-static void crckermit_v1_1_1(u8 *data, u16 len, u16 *crc_out)
+static void crckermit(u8 *data, u16 len, u16 *crc_out)
 {
     u16 i = 0;
     u16 j = 0;
@@ -112,12 +112,12 @@ static void crckermit_v1_1_1(u8 *data, u16 len, u16 *crc_out)
     *crc_out = crc;
 }
 
-static int rdata_check_v1_1_1(u8 *rdata, u32 rlen)
+static int rdata_check(u8 *rdata, u32 rlen)
 {
     u16 crc_calc = 0;
     u16 crc_read = 0;
 
-    crckermit_v1_1_1(rdata, rlen - 2, &crc_calc);
+    crckermit(rdata, rlen - 2, &crc_calc);
     crc_read = (u16)(rdata[rlen - 1] << 8) + rdata[rlen - 2];
     if (crc_calc != crc_read) {
         return -EIO;
@@ -126,7 +126,7 @@ static int rdata_check_v1_1_1(u8 *rdata, u32 rlen)
     return 0;
 }
 
-int fts_write_v1_1_1(u8 *writebuf, u32 writelen)
+int fts_write(u8 *writebuf, u32 writelen)
 {
     int ret = 0;
     int i = 0;
@@ -175,7 +175,7 @@ int fts_write_v1_1_1(u8 *writebuf, u32 writelen)
     }
 
     for (i = 0; i < SPI_RETRY_NUMBER; i++) {
-        ret = fts_spi_transfer_v1_1_1(txbuf, rxbuf, txlen);
+        ret = fts_spi_transfer(txbuf, rxbuf, txlen);
         if ((0 == ret) && ((rxbuf[3] & 0xA0) == 0)) {
             break;
         } else {
@@ -203,16 +203,16 @@ err_write:
     return ret;
 }
 
-int fts_write_reg_v1_1_1(u8 addr, u8 value)
+int fts_write_reg(u8 addr, u8 value)
 {
     u8 writebuf[2] = { 0 };
 
     writebuf[0] = addr;
     writebuf[1] = value;
-    return fts_write_v1_1_1(writebuf, 2);
+    return fts_write(writebuf, 2);
 }
 
-int fts_read_v1_1_1(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen)
+int fts_read(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen)
 {
     int ret = 0;
     int i = 0;
@@ -262,12 +262,12 @@ int fts_read_v1_1_1(u8 *cmd, u32 cmdlen, u8 *data, u32 datalen)
     }
 
     for (i = 0; i < SPI_RETRY_NUMBER; i++) {
-        ret = fts_spi_transfer_v1_1_1(txbuf, rxbuf, txlen);
+        ret = fts_spi_transfer(txbuf, rxbuf, txlen);
         if ((0 == ret) && ((rxbuf[3] & 0xA0) == 0)) {
             memcpy(data, &rxbuf[dp], datalen);
             /* crc check */
             if (ctrl & DATA_CRC_EN) {
-                ret = rdata_check_v1_1_1(&rxbuf[dp], txlen - dp);
+                ret = rdata_check(&rxbuf[dp], txlen - dp);
                 if (ret < 0) {
                     FTS_INFO("read data(addr:%x) crc check incorrect", cmd[0]);
                     goto err_read;
@@ -299,12 +299,12 @@ err_read:
     return ret;
 }
 
-int fts_read_reg_v1_1_1(u8 addr, u8 *value)
+int fts_read_reg(u8 addr, u8 *value)
 {
-    return fts_read_v1_1_1(&addr, 1, value, 1);
+    return fts_read(&addr, 1, value, 1);
 }
 
-int fts_bus_init_v1_1_1(struct fts_ts_data *ts_data)
+int fts_bus_init(struct fts_ts_data *ts_data)
 {
     FTS_FUNC_ENTER();
     ts_data->bus_tx_buf = kzalloc(SPI_BUF_LENGTH, GFP_KERNEL);
@@ -322,7 +322,7 @@ int fts_bus_init_v1_1_1(struct fts_ts_data *ts_data)
     return 0;
 }
 
-int fts_bus_exit_v1_1_1(struct fts_ts_data *ts_data)
+int fts_bus_exit(struct fts_ts_data *ts_data)
 {
     FTS_FUNC_ENTER();
     if (ts_data && ts_data->bus_tx_buf) {

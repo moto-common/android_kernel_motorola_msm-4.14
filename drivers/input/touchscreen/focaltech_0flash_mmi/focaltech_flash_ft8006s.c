@@ -40,10 +40,11 @@
 *****************************************************************************/
 #define FTS_READ_BOOT_ID_TIMEOUT                    3
 #define FTS_FLASH_PACKET_LENGTH_SPI                 (32 * 1024 - 16)
-
-#define FTS_CMD_ECC_LENGTH_MAX                      32766
+#define FTS_FLASH_DELAY_INIT                        12
+#define FTS_FLASH_DRWR_SUPPORT                      0
+#define FTS_FLASH_HALF_LENGTH                       0
+#define FTS_CMD_ECC_LENGTH_MAX                      (128 * 1024)
 #define FTS_ROMBOOT_CMD_ECC_FINISH_OK               0xA5
-
 
 /*****************************************************************************
 * Global variable or extern global variabls/functions
@@ -67,13 +68,14 @@ static int fts_enter_into_boot(void)
     for (i = 0; i < FTS_UPGRADE_LOOP; i++) {
         /* hardware tp reset to boot */
         fts_fwupg_hardware_reset_to_boot();
+        mdelay(FTS_FLASH_DELAY_INIT);
 
         /* enter into boot & check boot id*/
         for (j = 0; j < FTS_READ_BOOT_ID_TIMEOUT; j++) {
             cmd[0] = FTS_CMD_START1;
             ret = fts_write(cmd, 1);
             if (ret >= 0) {
-                mdelay(8);
+                mdelay(FTS_FLASH_DELAY_INIT);
                 ret = fts_check_bootid();
                 if (0 == ret) {
                     FTS_INFO("boot id check pass, retry=%d", i);
@@ -101,7 +103,7 @@ static int fts_dpram_write(u32 saddr, const u8 *buf, u32 len, bool wpram)
     u32 packet_len = 0;
     u32 packet_size = FTS_FLASH_PACKET_LENGTH_SPI;
 
-    FTS_INFO("dpram write");
+	FTS_INFO("dpram write");
     if (NULL == buf) {
         FTS_ERROR("fw buf is null");
         return -EINVAL;
@@ -171,7 +173,7 @@ static int fts_ecc_cal_tp(u32 ecc_saddr, u32 ecc_len, u16 *ecc_value)
     u8 cmd[FTS_ROMBOOT_CMD_ECC_NEW_LEN] = { 0 };
     u8 value[2] = { 0 };
 
-    FTS_INFO("ecc calc in tp");
+	FTS_INFO("ecc calc in tp");
     cmd[0] = FTS_ROMBOOT_CMD_ECC;
     cmd[1] = BYTE_OFF_16(ecc_saddr);
     cmd[2] = BYTE_OFF_8(ecc_saddr);
@@ -250,6 +252,7 @@ static int fts_ecc_check(const u8 *buf, u32 len, u32 ecc_saddr)
     int offset = 0;
     u32 packet_size = FTS_CMD_ECC_LENGTH_MAX;
 
+    FTS_INFO("ecc check");
     packet_number = len / packet_size;
     packet_remainder = len % packet_size;
     if (packet_remainder)
@@ -305,8 +308,12 @@ static int fts_pram_write_ecc(const u8 *buf, u32 len)
         return -EINVAL;
     }
 
-    pram_app_size = (u32)code_len;
-    pram_app_size = pram_app_size * 2;
+    if (FTS_FLASH_HALF_LENGTH) {
+        pram_app_size = ((u32) code_len) * 2;
+    } else {
+        pram_app_size = (u32) code_len;
+    }
+
     if ((pram_app_size < FTS_MIN_LEN) || (pram_app_size > FTS_MAX_LEN_APP)) {
         FTS_ERROR("pram app length(%d) is invalid", pram_app_size);
         return -EINVAL;
@@ -341,7 +348,7 @@ static int fts_dram_write_ecc(const u8 *buf, u32 len)
     u16 const_len_n = 0;
     const u8 *dram_buf = NULL;
 
-    FTS_INFO("begin to write dram data(bin len:%d)", len);
+	FTS_INFO("begin to write dram data(bin len:%d)", len);
     /* get dram data length */
     const_len = ((u16)buf[FTS_APP_INFO_OFFSET + 0x8] << 8)
                 + buf[FTS_APP_INFO_OFFSET + 0x9];
@@ -352,7 +359,12 @@ static int fts_dram_write_ecc(const u8 *buf, u32 len)
         return 0;
     }
 
-    dram_size = ((u32)const_len) * 2;
+    if (FTS_FLASH_HALF_LENGTH) {
+        dram_size = ((u32) const_len) * 2;
+    } else {
+        dram_size = (u32) const_len;
+    }
+
     if ((dram_size <= 0) || (dram_size > FTS_MAX_LEN_APP_PARAMS)) {
         FTS_ERROR("dram data length(%d) is invalid", dram_size);
         return -EINVAL;
@@ -427,11 +439,13 @@ int fts_fw_write_start(const u8 *buf, u32 len, bool need_reset)
         return ret;
     }
 
-    /* write dram */
-    ret = fts_dram_write_ecc(buf, len);
-    if (ret < 0) {
-        FTS_ERROR("write dram fail");
-        return ret;
+	if (FTS_FLASH_DRWR_SUPPORT) {
+        /* write dram */
+        ret = fts_dram_write_ecc(buf, len);
+        if (ret < 0) {
+            FTS_ERROR("write dram fail");
+            return ret;
+        }
     }
 
     /* remap pram and run fw */
