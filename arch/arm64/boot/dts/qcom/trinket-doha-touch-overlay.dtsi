@@ -5,7 +5,7 @@
 &qupv3_se2_spi {
 	status = "ok";
 	focaltech@0 {
-		compatible = "focaltech,fts";
+		compatible = "focaltech,fts_doha";
 		reg = <0x0>;
 		interrupt-parent = <&tlmm>;
 		interrupts = <88 0x02>;

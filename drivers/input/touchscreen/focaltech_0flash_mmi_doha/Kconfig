@@ -1,0 +1,19 @@
+#
+# Focaltech Touchscreen driver configuration
+#
+
+config TOUCHSCREEN_FTS_0FLASH_MMI_DOHA
+	tristate "Moto FT8719 Touchscreen"
+	depends on SPI
+	default n
+	help
+	  Say Y here if you have Moto Focaltech touch panel.
+	  If unsure, say N.
+
+config TOUCHSCREEN_FTS_0FLASH_MMI_DOHA_ENABLE_DOUBLE_TAP
+	bool "Moto FT8719 Double tap"
+	depends on TOUCHSCREEN_FTS_0FLASH_MMI_DOHA
+	default n
+	help
+	  Say Y here to enable support for double tap functionality on Focaltech touch panel.
+	  If unsure, say N.
