@@ -1,1 +1,1 @@
-obj-$(CONFIG_AW869x_HAPTIC) 	+= aw869x.o
+obj-$(CONFIG_AW869X_HAPTIC) 	+= aw869x.o

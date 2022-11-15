@@ -2,11 +2,11 @@
 # AW869x Driver
 #
 
-config AW8697_HAPTIC
-	tristate "Awinic AW8697 haptic driver"
+config AW869X_HAPTIC
+	tristate "Awinic AW869X haptic driver"
 	depends on I2C && INPUT_AWINIC_HAPTIC
 	help
-	  Say Y here if you have Awinic AW8697 haptic controller
+	  Say Y here if you have Awinic AW869X haptic controller
 	  chip in your system.
 
 	  If unsure, say N.
