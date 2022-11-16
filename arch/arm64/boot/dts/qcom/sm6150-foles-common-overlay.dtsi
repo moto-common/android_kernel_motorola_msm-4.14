@@ -752,7 +752,46 @@
 	//qcom,mdss-dsi-panel-status-value = <0x9c>;
 	//qcom,mdss-dsi-panel-on-check-value = <0x9c>;
 	qcom,mdss-dsi-no-panel-on-read-support;
+	qcom,mdss-brightness-max-level = <1023>;
 
+	qcom,disp-fod-dim-lut = <
+                        /* brightness, alpha */
+			1023 35
+			990 38
+			957 42
+			924 44
+			891 49
+			858 52
+			825 56
+			792 61
+			759 65
+			726 66
+			693 72
+			660 75
+			627 80
+			594 85
+			561 90
+			528 94
+			495 97
+			462 102
+			429 108
+			396 113
+			363 118
+			330 123
+			297 127
+			264 131
+			231 138
+			198 145
+			165 153
+			132 162
+			99 175
+			82 181
+			66 187
+			49 196
+			33 206
+			16 220
+			1 233
+	>;
 	qcom,mdss-dsi-display-timings {
 		timing@0{
 			qcom,mdss-dsi-panel-phy-timings =
@@ -775,6 +814,7 @@
 			qcom,mdss-dsi-panel-clockrate = <1102000000>;
 		};
 	};
+
 };
 
 &mot_tianma_639_1080p_cmd_v1 {
