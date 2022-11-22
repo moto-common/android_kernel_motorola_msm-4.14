@@ -29,13 +29,6 @@
 	reserved_memory: reserved-memory { };
 	utags: utags { };
 	hw: hw { };
-	firmware: firmware {
-		android {
-			fstab {
-				oem { };
-			};
-		};
-	};
 
 };
 
