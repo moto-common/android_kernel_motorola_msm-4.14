@@ -113,4 +113,4 @@ obj-$(CONFIG_TOUCHSCREEN_GOODIX_GTX8_MMI)	+= goodix_gtx8_mmi/
 obj-$(CONFIG_TOUCHSCREEN_FTS_0FLASH_MMI) += focaltech_0flash_mmi/
 obj-$(CONFIG_TOUCHSCREEN_NT36xxx_HOSTDL_SPI_MMI)	+= nova_0flash_mmi/
 obj-$(CONFIG_TOUCHSCREEN_ILITEK_CHIPSET)	+= ilitek_v3_mmi/
-
+obj-$(CONFIG_TOUCHSCREEN_ILITEK_CHIPSET_0FLASH)	+= ilitek_0flash_mmi/
