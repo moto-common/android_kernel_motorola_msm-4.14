@@ -66,7 +66,7 @@ static void scm_disable_sdi(void);
  * So the SDI cannot be re-enabled when it already by-passed.
  */
 static int download_mode = 1;
-static bool force_warm_reboot;
+static bool force_warm_reboot = 1;
 
 #ifdef CONFIG_QCOM_DLOAD_MODE
 #define EDL_MODE_PROP "qcom,msm-imem-emergency_download_mode"
@@ -295,10 +295,7 @@ static void halt_spmi_pmic_arbiter(void)
 static int debug_sys_restart_mode;
 static int __init set_sys_restart_mode(char *str)
 {
-	if (!strcmp(str, "warm"))
-		debug_sys_restart_mode = DEBUG_SYS_RESETART_WARM;
-	else if (!strcmp(str, "panic"))
-		debug_sys_restart_mode = DEBUG_SYS_RESETART_PANIC;
+	debug_sys_restart_mode = DEBUG_SYS_RESETART_WARM;
 	pr_info("sys_restart_mode is set to %d\n", debug_sys_restart_mode);
 	return 1;
 }
@@ -307,7 +304,7 @@ __setup("sys_restart_mode=", set_sys_restart_mode);
 
 static void msm_restart_prepare(const char *cmd)
 {
-	bool need_warm_reset = false;
+	bool need_warm_reset = true;
 #ifdef CONFIG_QCOM_DLOAD_MODE
 	/* Write download mode flags if we're panic'ing
 	 * Write download mode flags if restart_mode says so
@@ -356,7 +353,6 @@ static void msm_restart_prepare(const char *cmd)
 			 * force cold reboot here to avoid unexpected
 			 * warm boot from bootloader.
 			 */
-			qpnp_pon_system_pwr_off(PON_POWER_OFF_HARD_RESET);
 		} else if (!strncmp(cmd, "recovery", 8)) {
 			qpnp_pon_set_restart_reason(
 				PON_RESTART_REASON_RECOVERY);

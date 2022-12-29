@@ -1,0 +1,1 @@
+obj-$(CONFIG_MAX17055_BATTERY_MMI) += max17055_battery_mmi.o
