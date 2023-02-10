@@ -455,9 +455,7 @@ static int fts_get_fw_file_via_request_firmware(struct fts_upgrade *upg)
     u8 *tmpbuf = NULL;
     char fwname[FILE_NAME_LENGTH] = { 0 };
 
-    snprintf(fwname, FILE_NAME_LENGTH, "%s%s.bin", \
-             FTS_FW_NAME_PREX_WITH_REQUEST, \
-             upg->module_info->vendor_name);
+    snprintf(fwname, FILE_NAME_LENGTH, "focaltech-ft8756-09-0000-def.bin");
 
     ret = request_firmware(&fw, fwname, upg->ts_data->dev);
     if (0 == ret) {
