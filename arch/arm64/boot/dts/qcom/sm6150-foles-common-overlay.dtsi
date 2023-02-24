@@ -835,6 +835,44 @@
 	//qcom,mdss-dsi-panel-on-check-value = <0x1c>;
 	qcom,mdss-dsi-no-panel-on-read-support;
 
+	qcom,disp-fod-dim-lut = <
+                        /* brightness, alpha */
+                        1 233
+                        16 220
+                        33 206
+                        49 196
+                        66 187
+                        82 181
+                        99 175
+                        132 162
+                        165 153
+                        198 145
+                        231 138
+                        264 131
+                        297 127
+                        330 123
+                        363 118
+                        396 113
+                        429 108
+                        462 102
+                        495 97
+                        528 94
+                        561 90
+                        594 85
+                        627 80
+                        660 75
+                        693 72
+                        726 66
+                        759 65
+                        792 61
+                        825 56
+                        858 52
+                        891 49
+                        924 44
+                        957 42
+                        990 38
+			1023 35
+	>;
 	qcom,mdss-dsi-display-timings {
 		timing@0{
 			qcom,mdss-dsi-panel-phy-timings =
